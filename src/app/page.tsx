@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import GiftForm from '@/components/GiftForm';
 import GiftSuggestions from '@/components/GiftSuggestions';
+import SavedGifts from '@/components/SavedGifts';
 import Header from '@/components/Header';
 
 interface GiftFormData {
@@ -15,30 +16,112 @@ interface GiftFormData {
   additionalInfo: string;
 }
 
+interface GiftSuggestion {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  reason: string;
+}
+
+interface SavedGift {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  reason: string;
+  recipientName: string;
+  savedAt: Date;
+}
+
 interface GiftData {
   recipient: GiftFormData;
-  suggestions: Array<{
-    id: number;
-    name: string;
-    description: string;
-    price: string;
-    category: string;
-    reason: string;
-  }>;
+  suggestions: GiftSuggestion[];
 }
+
+type ViewMode = 'generator' | 'saved';
 
 export default function Home() {
   const [giftData, setGiftData] = useState<GiftData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isAIPowered, setIsAIPowered] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [savedGifts, setSavedGifts] = useState<SavedGift[]>([]);
+  const [savedGiftIds, setSavedGiftIds] = useState<Set<number>>(new Set());
+  const [viewMode, setViewMode] = useState<ViewMode>('generator');
 
-  const handleGenerateGifts = async (formData: GiftFormData) => {
+  // Load saved gifts from localStorage on component mount
+  useEffect(() => {
+    const saved = localStorage.getItem('presgen-saved-gifts');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const gifts = parsed.map((gift: SavedGift) => ({
+          ...gift,
+          savedAt: new Date(gift.savedAt)
+        }));
+        setSavedGifts(gifts);
+        setSavedGiftIds(new Set(gifts.map((gift: SavedGift) => parseInt(gift.id.split('-')[0]))));
+      } catch {
+        // Silently handle localStorage errors
+      }
+    }
+  }, []);
+
+  // Save gifts to localStorage whenever savedGifts changes
+  useEffect(() => {
+    localStorage.setItem('presgen-saved-gifts', JSON.stringify(savedGifts));
+  }, [savedGifts]);
+
+  const handleSaveGift = useCallback((gift: GiftSuggestion) => {
+    if (savedGiftIds.has(gift.id)) return; // Already saved
+
+    const savedGift: SavedGift = {
+      id: `${gift.id}-${Date.now()}`, // Unique ID
+      name: gift.name,
+      description: gift.description,
+      price: gift.price,
+      category: gift.category,
+      reason: gift.reason,
+      recipientName: giftData?.recipient.name || 'Unknown',
+      savedAt: new Date()
+    };
+
+    setSavedGifts(prev => [...prev, savedGift]);
+    setSavedGiftIds(prev => new Set([...prev, gift.id]));
+  }, [savedGiftIds, giftData?.recipient.name]);
+
+  const handleRemoveGift = useCallback((id: string) => {
+    const giftToRemove = savedGifts.find(gift => gift.id === id);
+    if (giftToRemove) {
+      const originalId = parseInt(giftToRemove.id.split('-')[0]);
+      setSavedGifts(prev => prev.filter(gift => gift.id !== id));
+      setSavedGiftIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(originalId);
+        return newSet;
+      });
+    }
+  }, [savedGifts]);
+
+  const handleViewSavedGifts = useCallback(() => {
+    setViewMode('saved');
+  }, []);
+
+  const handleBackToGenerator = useCallback(() => {
+    setViewMode('generator');
+  }, []);
+
+  const handleGenerateNewGift = useCallback(() => {
+    setViewMode('generator');
+    setGiftData(null);
+    setError(null);
+  }, []);
+
+  const handleGenerateGifts = useCallback(async (formData: GiftFormData) => {
     setIsGenerating(true);
-    setIsAIPowered(false);
-    
-    // Debug: Check if API key is loaded
-    console.log('API Key loaded:', !!process.env.NEXT_PUBLIC_OPENROUTER_API_KEY);
-    console.log('API Key starts with:', process.env.NEXT_PUBLIC_OPENROUTER_API_KEY?.substring(0, 10));
+    setError(null);
     
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -111,7 +194,6 @@ Respond only with valid JSON, no additional text.`
       try {
         suggestions = JSON.parse(aiResponse);
       } catch {
-        console.error('Failed to parse AI response:', aiResponse);
         throw new Error('Invalid response format from AI');
       }
 
@@ -120,30 +202,23 @@ Respond only with valid JSON, no additional text.`
           recipient: formData,
           suggestions: suggestions.suggestions
         });
-        setIsAIPowered(true);
       } else {
         throw new Error('No suggestions received from AI');
       }
 
     } catch (error) {
-      console.error('Error calling OpenRouter API:', error);
-      // Fallback to mock suggestions
-      const mockSuggestions = generateMockSuggestions(formData);
-      setGiftData({
-        recipient: formData,
-        suggestions: mockSuggestions
-      });
-      setIsAIPowered(false);
+      console.error('Error generating gifts:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate gift suggestions. Please try again.');
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, []);
 
-  const handleRegenerateGifts = async () => {
+  const handleRegenerateGifts = useCallback(async () => {
     if (!giftData) return;
     
     setIsGenerating(true);
-    setIsAIPowered(false);
+    setError(null);
     
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -217,7 +292,6 @@ Respond only with valid JSON, no additional text.`
       try {
         suggestions = JSON.parse(aiResponse);
       } catch {
-        console.error('Failed to parse AI response:', aiResponse);
         throw new Error('Invalid response format from AI');
       }
 
@@ -226,161 +300,119 @@ Respond only with valid JSON, no additional text.`
           ...prev!,
           suggestions: suggestions.suggestions
         }));
-        setIsAIPowered(true);
       } else {
         throw new Error('No suggestions received from AI');
       }
 
     } catch (error) {
-      console.error('Error calling OpenRouter API:', error);
-      // Fallback to mock suggestions
-      const mockSuggestions = generateMockSuggestions(giftData.recipient);
-      setGiftData(prev => ({
-        ...prev!,
-        suggestions: mockSuggestions
-      }));
-      setIsAIPowered(false);
+      console.error('Error regenerating gifts:', error);
+      setError(error instanceof Error ? error.message : 'Failed to regenerate gift suggestions. Please try again.');
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const generateMockSuggestions = (formData: GiftFormData) => {
-    const { relationship, interests, budget } = formData;
-    
-    const suggestions = [];
-    
-    // Generate suggestions based on interests
-    if (interests.includes('technology')) {
-      suggestions.push({
-        id: 1,
-        name: 'Smart Home Device',
-        description: 'A practical and modern gift for tech enthusiasts',
-        price: '$50-100',
-        category: 'Technology',
-        reason: 'Perfect for someone who loves smart home technology'
-      });
-    }
-    
-    if (interests.includes('cooking')) {
-      suggestions.push({
-        id: 2,
-        name: 'Premium Cooking Set',
-        description: 'High-quality kitchen tools for the culinary enthusiast',
-        price: '$80-150',
-        category: 'Kitchen & Cooking',
-        reason: 'Great for someone passionate about cooking'
-      });
-    }
-    
-    if (interests.includes('reading')) {
-      suggestions.push({
-        id: 3,
-        name: 'E-reader or Book Subscription',
-        description: 'Digital reading device or monthly book delivery',
-        price: '$100-200',
-        category: 'Books & Reading',
-        reason: 'Ideal for avid readers'
-      });
-    }
-    
-    if (interests.includes('fitness')) {
-      suggestions.push({
-        id: 4,
-        name: 'Fitness Tracker',
-        description: 'Smart watch to track health and fitness goals',
-        price: '$150-300',
-        category: 'Health & Fitness',
-        reason: 'Perfect for fitness enthusiasts'
-      });
-    }
-    
-    if (interests.includes('art')) {
-      suggestions.push({
-        id: 5,
-        name: 'Art Supplies Kit',
-        description: 'Professional-grade art materials for creative expression',
-        price: '$60-120',
-        category: 'Arts & Crafts',
-        reason: 'Great for artistic individuals'
-      });
-    }
-    
-    // Add some generic suggestions based on relationship and occasion
-    if (relationship === 'colleague') {
-      suggestions.push({
-        id: 6,
-        name: 'Professional Desk Organizer',
-        description: 'Elegant desk accessories for the workplace',
-        price: '$30-80',
-        category: 'Office & Professional',
-        reason: 'Practical and professional gift for colleagues'
-      });
-    }
-    
-    if (relationship === 'friend') {
-      suggestions.push({
-        id: 7,
-        name: 'Experience Gift Card',
-        description: 'Gift card for memorable experiences (dining, activities)',
-        price: '$50-200',
-        category: 'Experiences',
-        reason: 'Create lasting memories with friends'
-      });
-    }
-    
-    if (relationship === 'family') {
-      suggestions.push({
-        id: 8,
-        name: 'Personalized Photo Album',
-        description: 'Custom photo book with shared memories',
-        price: '$40-100',
-        category: 'Personalized',
-        reason: 'Meaningful family gift with sentimental value'
-      });
-    }
-    
-    // Filter by budget
-    const budgetRange = budget === 'low' ? [0, 50] : 
-                       budget === 'medium' ? [50, 150] : 
-                       [150, 500];
-    
-    return suggestions.filter(suggestion => {
-      const price = parseInt(suggestion.price.replace(/[^0-9]/g, ''));
-      return price >= budgetRange[0] && price <= budgetRange[1];
-    }).slice(0, 6); // Limit to 6 suggestions
-  };
+  }, [giftData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      <Header />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900"></div>
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.15),transparent_50%)]"></div>
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.1),transparent_50%)]"></div>
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(192,132,252,0.1),transparent_50%)]"></div>
       
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Gift Generator
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover the perfect gift for your friends, colleagues, and loved ones. 
-            Tell us about them and we&apos;ll suggest thoughtful presents just for them.
-          </p>
-        </div>
-
-        {!giftData ? (
-          <GiftForm onSubmit={handleGenerateGifts} isGenerating={isGenerating} />
+      {/* Floating Elements */}
+      <div className="fixed top-20 left-10 w-32 h-32 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-20 animate-float animate-neon"></div>
+      <div className="fixed top-40 right-20 w-24 h-24 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full opacity-20 animate-float" style={{ animationDelay: '1s' }}></div>
+      <div className="fixed bottom-20 left-20 w-40 h-40 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
+      
+      {/* Grid Pattern */}
+      <div className="fixed inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+      
+      <Header 
+        onViewSavedGifts={handleViewSavedGifts}
+        onGenerateNewGift={handleGenerateNewGift}
+      />
+      
+      <main className="relative container mx-auto px-6 py-12 max-w-7xl">
+        {viewMode === 'generator' ? (
+          !giftData ? (
+            <>
+              <div className="text-center mb-16">
+                <div className="inline-flex items-center justify-center w-24 h-24 gradient-magic rounded-3xl mb-8 animate-pulse-glow">
+                  <span className="text-4xl">🎁</span>
+                </div>
+                <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-6 leading-tight">
+                  Gift Generator
+                </h1>
+                <p className="text-xl md:text-2xl text-foreground max-w-3xl mx-auto leading-relaxed">
+                  Discover the perfect gift for your friends, colleagues, and loved ones. 
+                  Our AI-powered system creates personalized suggestions just for them.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4 mt-8">
+                  <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200 animate-neon">
+                    🤖 AI-Powered
+                  </span>
+                  <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200 animate-neon" style={{ animationDelay: '0.5s' }}>
+                    ⚡ Instant Results
+                  </span>
+                  <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200 animate-neon" style={{ animationDelay: '1s' }}>
+                    🎯 Personalized
+                  </span>
+                  <button
+                    onClick={handleViewSavedGifts}
+                    className="btn-modern gradient-secondary text-white px-6 py-2 rounded-full text-sm font-semibold hover:shadow-lg transition-all duration-300 animate-neon cursor-pointer"
+                    style={{ animationDelay: '1.5s' }}
+                  >
+                    💝 {savedGifts.length > 0 ? `View Saved Gifts (${savedGifts.length})` : 'View Saved Gifts'}
+                  </button>
+                </div>
+              </div>
+              <GiftForm onSubmit={handleGenerateGifts} isGenerating={isGenerating} />
+              {error && (
+                <div className="mt-8 text-center">
+                  <div className="glass rounded-2xl p-6 max-w-2xl mx-auto border border-red-500/30">
+                    <p className="text-red-300 text-lg font-semibold mb-2">❌ Error</p>
+                    <p className="text-red-200">{error}</p>
+                    <button
+                      onClick={() => setError(null)}
+                      className="mt-4 btn-modern gradient-primary text-white px-6 py-2 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <GiftSuggestions 
+              giftData={giftData} 
+              onReset={() => {
+                setGiftData(null);
+                setError(null);
+              }}
+              onRegenerate={handleRegenerateGifts}
+              isGenerating={isGenerating}
+              onSaveGift={handleSaveGift}
+              savedGiftIds={savedGiftIds}
+            />
+          )
         ) : (
-          <GiftSuggestions 
-            giftData={giftData} 
-            onReset={() => {
-              setGiftData(null);
-              setIsAIPowered(false);
-            }}
-            onRegenerate={handleRegenerateGifts}
-            isGenerating={isGenerating}
-            isAIPowered={isAIPowered}
+          <SavedGifts 
+            savedGifts={savedGifts}
+            onRemoveGift={handleRemoveGift}
+            onBack={handleBackToGenerator}
           />
         )}
       </main>
+      
+      {/* Footer */}
+      <footer className="relative mt-20 py-8 text-center">
+        <div className="glass rounded-2xl p-6 max-w-2xl mx-auto">
+          <p className="text-purple-200 text-sm">
+            Made with ❤️ using Next.js, Tailwind CSS, and Claude 3.5 Sonnet
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

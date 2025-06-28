@@ -1,5 +1,7 @@
 'use client';
 
+import { useCallback, memo } from 'react';
+
 interface GiftSuggestion {
   id: number;
   name: string;
@@ -27,13 +29,21 @@ interface GiftSuggestionsProps {
   onReset: () => void;
   onRegenerate: () => void;
   isGenerating: boolean;
-  isAIPowered?: boolean;
+  onSaveGift: (gift: GiftSuggestion) => void;
+  savedGiftIds: Set<number>;
 }
 
-export default function GiftSuggestions({ giftData, onReset, onRegenerate, isGenerating, isAIPowered = true }: GiftSuggestionsProps) {
+const GiftSuggestions = memo(function GiftSuggestions({ 
+  giftData, 
+  onReset, 
+  onRegenerate, 
+  isGenerating, 
+  onSaveGift,
+  savedGiftIds
+}: GiftSuggestionsProps) {
   const { recipient, suggestions } = giftData;
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = useCallback((category: string) => {
     const icons: { [key: string]: string } = {
       'Technology': '💻',
       'Kitchen & Cooking': '🍳',
@@ -45,54 +55,64 @@ export default function GiftSuggestions({ giftData, onReset, onRegenerate, isGen
       'Personalized': '🎁'
     };
     return icons[category] || '🎁';
-  };
+  }, []);
 
-  const getBudgetLabel = (budget: string) => {
+  const getBudgetLabel = useCallback((budget: string) => {
     const labels: { [key: string]: string } = {
       'low': 'Under $50',
       'medium': '$50-150',
       'high': '$150+'
     };
     return labels[budget] || budget;
-  };
+  }, []);
+
+  const handleSaveGift = useCallback((gift: GiftSuggestion) => {
+    onSaveGift(gift);
+  }, [onSaveGift]);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">
+      <div className="text-center mb-12">
+        <div className="inline-flex items-center justify-center w-20 h-20 gradient-magic rounded-3xl mb-6 animate-pulse-glow">
+          <span className="text-3xl">🎁</span>
+        </div>
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-6">
           Gift Suggestions for {recipient.name}
         </h2>
-        <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
-          <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+        <div className="flex flex-wrap justify-center gap-3 text-sm">
+          <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
             {recipient.relationship.charAt(0).toUpperCase() + recipient.relationship.slice(1)}
           </span>
-          <span className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full">
+          <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
             {recipient.age.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
           </span>
-          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+          <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
             {getBudgetLabel(recipient.budget)}
           </span>
-          <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+          <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
             {recipient.occasion.charAt(0).toUpperCase() + recipient.occasion.slice(1)}
           </span>
-          {isAIPowered && (
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full">
-              🤖 AI-Powered
-            </span>
-          )}
+          <span className="gradient-primary text-white px-4 py-2 rounded-full font-medium animate-pulse">
+            🤖 AI-Powered
+          </span>
         </div>
       </div>
 
       {/* Recipient Summary */}
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">About {recipient.name}</h3>
-        <div className="grid md:grid-cols-2 gap-6">
+      <div className="glass rounded-3xl shadow-2xl p-8 mb-12 animate-float">
+        <div className="flex items-center mb-6">
+          <div className="w-12 h-12 gradient-secondary rounded-2xl flex items-center justify-center mr-4">
+            <span className="text-xl">👤</span>
+          </div>
+          <h3 className="text-2xl font-bold text-purple-200">About {recipient.name}</h3>
+        </div>
+        <div className="grid md:grid-cols-2 gap-8">
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Interests</h4>
-            <div className="flex flex-wrap gap-2">
+            <h4 className="font-semibold text-purple-200 mb-4 text-lg">Interests</h4>
+            <div className="flex flex-wrap gap-3">
               {recipient.interests.map(interest => (
-                <span key={interest} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+                <span key={interest} className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200">
                   {interest.charAt(0).toUpperCase() + interest.slice(1)}
                 </span>
               ))}
@@ -100,65 +120,84 @@ export default function GiftSuggestions({ giftData, onReset, onRegenerate, isGen
           </div>
           {recipient.additionalInfo && (
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Additional Notes</h4>
-              <p className="text-gray-600 text-sm">{recipient.additionalInfo}</p>
+              <h4 className="font-semibold text-purple-200 mb-4 text-lg">Additional Notes</h4>
+              <p className="text-purple-300 leading-relaxed">{recipient.additionalInfo}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Gift Suggestions */}
-      <div className="mb-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          {isAIPowered ? 'AI-Generated Gift Suggestions' : 'Personalized Gift Suggestions'}
-        </h3>
+      <div className="mb-12">
+        <div className="text-center mb-8">
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+            AI-Generated Gift Suggestions
+          </h3>
+          <p className="text-purple-200 text-lg">
+            Carefully curated based on {recipient.name}&apos;s preferences and interests
+          </p>
+        </div>
         
         {isGenerating ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">
-              {isAIPowered ? 'AI is analyzing and generating personalized gift suggestions...' : 'Generating personalized gift suggestions...'}
+          <div className="text-center py-16">
+            <div className="inline-flex items-center justify-center w-24 h-24 gradient-primary rounded-3xl mb-6 animate-pulse-glow">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-white"></div>
+            </div>
+            <h4 className="text-xl font-semibold text-purple-200 mb-2">
+              AI is analyzing preferences...
+            </h4>
+            <p className="text-purple-300">
+              This usually takes 10-15 seconds
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {suggestions.map((suggestion) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {suggestions.map((suggestion, index) => (
               <div 
                 key={suggestion.id} 
-                className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 border border-gray-100"
+                className="card-modern glass p-8 hover:shadow-2xl"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-3xl">{getCategoryIcon(suggestion.category)}</div>
+                <div className="flex items-start justify-between mb-6">
+                  <div className="text-4xl animate-float">{getCategoryIcon(suggestion.category)}</div>
                   <div className="text-right">
-                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                    <span className="glass-text px-3 py-1 rounded-full text-xs font-semibold text-purple-200">
                       {suggestion.category}
                     </span>
-                    <div className="text-lg font-bold text-green-600 mt-1">
+                    <div className="text-xl font-bold gradient-primary bg-clip-text text-transparent mt-2">
                       {suggestion.price}
                     </div>
                   </div>
                 </div>
                 
-                <h4 className="text-xl font-bold text-gray-800 mb-2">
+                <h4 className="text-xl font-bold text-purple-200 mb-3 leading-tight">
                   {suggestion.name}
                 </h4>
                 
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                <p className="text-purple-300 mb-6 text-sm leading-relaxed">
                   {suggestion.description}
                 </p>
                 
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <p className="text-sm text-blue-800">
-                    <span className="font-medium">Why this gift:</span> {suggestion.reason}
+                <div className="glass-text rounded-2xl p-4 mb-6">
+                  <p className="text-sm text-purple-200 leading-relaxed">
+                    <span className="font-semibold">Why this gift:</span> {suggestion.reason}
                   </p>
                 </div>
                 
-                <div className="mt-4 flex gap-2">
-                  <button className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
+                <div className="flex gap-3">
+                  <button className="flex-1 btn-modern gradient-primary text-white py-3 px-4 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer">
                     View Details
                   </button>
-                  <button className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                    Save
+                  <button 
+                    onClick={() => handleSaveGift(suggestion)}
+                    disabled={savedGiftIds.has(suggestion.id)}
+                    className={`py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                      savedGiftIds.has(suggestion.id)
+                        ? 'glass-text text-green-400 cursor-not-allowed'
+                        : 'glass-text text-purple-200 hover:bg-purple-500/20'
+                    }`}
+                  >
+                    {savedGiftIds.has(suggestion.id) ? '✓ Saved' : 'Save'}
                   </button>
                 </div>
               </div>
@@ -168,47 +207,46 @@ export default function GiftSuggestions({ giftData, onReset, onRegenerate, isGen
       </div>
 
       {/* Action Buttons */}
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={onRegenerate}
             disabled={isGenerating}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-8 rounded-lg hover:from-purple-700 hover:to-pink-700 focus:ring-4 focus:ring-purple-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-modern gradient-primary text-white font-semibold py-4 px-8 rounded-xl text-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
           >
             {isGenerating ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <div className="flex items-center justify-center space-x-3">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
                 <span>Regenerating...</span>
               </div>
             ) : (
-              '🔄 Regenerate Suggestions'
+              <div className="flex items-center justify-center space-x-2">
+                <span>🔄</span>
+                <span>Regenerate Suggestions</span>
+              </div>
             )}
           </button>
           
           <button
             onClick={onReset}
             disabled={isGenerating}
-            className="bg-white border-2 border-purple-600 text-purple-600 font-semibold py-3 px-8 rounded-lg hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-modern glass border-2 border-purple-500 text-purple-200 font-semibold py-4 px-8 rounded-xl text-lg hover:bg-purple-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
           >
-            ✨ Generate New Gift
+            <div className="flex items-center justify-center space-x-2">
+              <span>✨</span>
+              <span>Generate New Gift</span>
+            </div>
           </button>
         </div>
         
-        <div className="text-sm text-gray-500">
-          <p>Not satisfied with these suggestions? Try regenerating or add more details about the recipient!</p>
-        </div>
-      </div>
-
-      {/* AI Info */}
-      {isAIPowered && (
-        <div className="mt-12 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 text-center">
-          <h4 className="text-lg font-semibold text-gray-800 mb-2">Powered by AI</h4>
-          <p className="text-gray-600">
-            These suggestions are generated using Claude 3.5 Sonnet via OpenRouter, 
-            providing personalized and thoughtful gift recommendations just for you.
+        <div className="glass-text rounded-2xl p-6 max-w-2xl mx-auto">
+          <p className="text-purple-200 text-sm leading-relaxed">
+            Not satisfied with these suggestions? Try regenerating or add more details about the recipient to get even better recommendations!
           </p>
         </div>
-      )}
+      </div>
     </div>
   );
-} 
+});
+
+export default GiftSuggestions; 
