@@ -135,6 +135,17 @@ export default function Home() {
     setIsGenerating(true);
     setError(null);
     
+    // Get saved gifts for this recipient to avoid duplicates
+    const savedGiftsForRecipient = savedGifts.filter(gift => 
+      gift.recipientName === formData.name
+    );
+    
+    // Create a list of saved gift names to avoid
+    const savedGiftNames = savedGiftsForRecipient.map(gift => gift.name);
+    const savedGiftNamesText = savedGiftNames.length > 0 
+      ? `\n\nIMPORTANT: Please avoid these gifts that have already been saved for this person:\n${savedGiftNames.map(name => `- ${name}`).join('\n')}\n\nMake sure your new suggestions are completely different from these saved gifts.`
+      : '';
+    
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -159,7 +170,7 @@ Age Range: ${formData.age}
 Interests: ${formData.interests.join(', ')}
 Budget: ${formData.budget}
 Occasion: ${formData.occasion}
-${formData.additionalInfo ? `Additional Information: ${formData.additionalInfo}` : ''}
+${formData.additionalInfo ? `Additional Information: ${formData.additionalInfo}` : ''}${savedGiftNamesText}
 
 Please provide 6 gift suggestions in the following JSON format:
 {
@@ -181,6 +192,7 @@ Make sure the suggestions are:
 3. Appropriate for the relationship and occasion
 4. Practical and thoughtful
 5. Include a mix of different categories
+6. NOT in the list of already saved gifts provided above
 
 Respond only with valid JSON, no additional text.`
             }
@@ -224,13 +236,24 @@ Respond only with valid JSON, no additional text.`
     } finally {
       setIsGenerating(false);
     }
-  }, []);
+  }, [savedGifts]);
 
   const handleRegenerateGifts = useCallback(async () => {
     if (!giftData) return;
     
     setIsGenerating(true);
     setError(null);
+    
+    // Get saved gifts for this recipient to avoid duplicates
+    const savedGiftsForRecipient = savedGifts.filter(gift => 
+      gift.recipientName === giftData.recipient.name
+    );
+    
+    // Create a list of saved gift names to avoid
+    const savedGiftNames = savedGiftsForRecipient.map(gift => gift.name);
+    const savedGiftNamesText = savedGiftNames.length > 0 
+      ? `\n\nIMPORTANT: Please avoid these gifts that have already been saved for this person:\n${savedGiftNames.map(name => `- ${name}`).join('\n')}\n\nMake sure your new suggestions are completely different from these saved gifts.`
+      : '';
     
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -256,7 +279,7 @@ Age Range: ${giftData.recipient.age}
 Interests: ${giftData.recipient.interests.join(', ')}
 Budget: ${giftData.recipient.budget}
 Occasion: ${giftData.recipient.occasion}
-${giftData.recipient.additionalInfo ? `Additional Information: ${giftData.recipient.additionalInfo}` : ''}
+${giftData.recipient.additionalInfo ? `Additional Information: ${giftData.recipient.additionalInfo}` : ''}${savedGiftNamesText}
 
 Please provide 6 NEW gift suggestions in the following JSON format:
 {
@@ -278,7 +301,8 @@ Make sure the suggestions are:
 3. Appropriate for the relationship and occasion
 4. Practical and thoughtful
 5. Include a mix of different categories
-6. DIFFERENT from previous suggestions
+6. DIFFERENT from previous suggestions and saved gifts
+7. NOT in the list of already saved gifts provided above
 
 Respond only with valid JSON, no additional text.`
             }
@@ -322,7 +346,7 @@ Respond only with valid JSON, no additional text.`
     } finally {
       setIsGenerating(false);
     }
-  }, [giftData]);
+  }, [giftData, savedGifts]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">

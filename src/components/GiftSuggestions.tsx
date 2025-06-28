@@ -135,9 +135,14 @@ const GiftSuggestions = memo(function GiftSuggestions({
           <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
             AI-Generated Gift Suggestions
           </h3>
-          <p className="text-purple-200 text-lg">
+          <p className="text-purple-200 text-lg mb-2">
             Carefully curated based on {recipient.name}&apos;s preferences and interests
           </p>
+          {savedGiftIds.size > 0 && (
+            <p className="text-purple-300 text-sm">
+              💡 Already saved {savedGiftIds.size} gift(s) for {recipient.name} - new suggestions will avoid duplicates
+            </p>
+          )}
         </div>
         
         {isGenerating ? (
@@ -227,7 +232,7 @@ const GiftSuggestions = memo(function GiftSuggestions({
             ) : (
               <div className="flex items-center justify-center space-x-2">
                 <span>🔄</span>
-                <span>Regenerate Suggestions</span>
+                <span>Regenerate (Avoids Saved)</span>
               </div>
             )}
           </button>
@@ -246,7 +251,7 @@ const GiftSuggestions = memo(function GiftSuggestions({
         
         <div className="glass-text rounded-2xl p-6 max-w-2xl mx-auto">
           <p className="text-purple-200 text-sm leading-relaxed">
-            Not satisfied with these suggestions? Try regenerating or add more details about the recipient to get even better recommendations!
+            Not satisfied with these suggestions? Try regenerating to get fresh ideas that avoid your already saved gifts, or add more details about the recipient to get even better recommendations!
           </p>
         </div>
       </div>
