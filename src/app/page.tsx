@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import GiftForm from '@/components/GiftForm';
 import GiftSuggestions from '@/components/GiftSuggestions';
 import SavedGifts from '@/components/SavedGifts';
+import GiftDetail from '@/components/GiftDetail';
 import Header from '@/components/Header';
 
 interface GiftFormData {
@@ -41,7 +42,7 @@ interface GiftData {
   suggestions: GiftSuggestion[];
 }
 
-type ViewMode = 'generator' | 'saved';
+type ViewMode = 'generator' | 'saved' | 'detail';
 
 export default function Home() {
   const [giftData, setGiftData] = useState<GiftData | null>(null);
@@ -50,6 +51,7 @@ export default function Home() {
   const [savedGifts, setSavedGifts] = useState<SavedGift[]>([]);
   const [savedGiftIds, setSavedGiftIds] = useState<Set<number>>(new Set());
   const [viewMode, setViewMode] = useState<ViewMode>('generator');
+  const [selectedGift, setSelectedGift] = useState<GiftSuggestion | SavedGift | null>(null);
 
   // Load saved gifts from localStorage on component mount
   useEffect(() => {
@@ -117,6 +119,16 @@ export default function Home() {
     setViewMode('generator');
     setGiftData(null);
     setError(null);
+  }, []);
+
+  const handleViewGiftDetail = useCallback((gift: GiftSuggestion | SavedGift) => {
+    setSelectedGift(gift);
+    setViewMode('detail');
+  }, []);
+
+  const handleBackFromDetail = useCallback(() => {
+    setSelectedGift(null);
+    setViewMode('generator');
   }, []);
 
   const handleGenerateGifts = useCallback(async (formData: GiftFormData) => {
@@ -394,15 +406,26 @@ Respond only with valid JSON, no additional text.`
               isGenerating={isGenerating}
               onSaveGift={handleSaveGift}
               savedGiftIds={savedGiftIds}
+              onViewDetail={handleViewGiftDetail}
             />
           )
-        ) : (
+        ) : viewMode === 'saved' ? (
           <SavedGifts 
             savedGifts={savedGifts}
             onRemoveGift={handleRemoveGift}
             onBack={handleBackToGenerator}
+            onViewDetail={handleViewGiftDetail}
           />
-        )}
+        ) : viewMode === 'detail' && selectedGift ? (
+          <GiftDetail 
+            gift={selectedGift}
+            recipient={giftData?.recipient}
+            onBack={handleBackFromDetail}
+            onSave={selectedGift && 'recipientName' in selectedGift ? undefined : () => handleSaveGift(selectedGift as GiftSuggestion)}
+            isSaved={selectedGift && 'recipientName' in selectedGift ? true : savedGiftIds.has((selectedGift as GiftSuggestion).id)}
+            onRemove={selectedGift && 'recipientName' in selectedGift ? () => handleRemoveGift(selectedGift.id) : undefined}
+          />
+        ) : null}
       </main>
       
       {/* Footer */}

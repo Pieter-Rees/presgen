@@ -17,9 +17,10 @@ interface SavedGiftsProps {
   savedGifts: SavedGift[];
   onRemoveGift: (id: string) => void;
   onBack: () => void;
+  onViewDetail: (gift: SavedGift) => void;
 }
 
-const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack }: SavedGiftsProps) {
+const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, onViewDetail }: SavedGiftsProps) {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'price'>('date');
 
@@ -186,7 +187,10 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack }
               </div>
               
               <div className="flex gap-3">
-                <button className="flex-1 btn-modern gradient-primary text-white py-2 px-3 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer">
+                <button 
+                  onClick={() => onViewDetail(gift)}
+                  className="flex-1 btn-modern gradient-primary text-white py-2 px-3 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
+                >
                   View Details
                 </button>
                 <button 

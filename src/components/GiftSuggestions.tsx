@@ -31,6 +31,7 @@ interface GiftSuggestionsProps {
   isGenerating: boolean;
   onSaveGift: (gift: GiftSuggestion) => void;
   savedGiftIds: Set<number>;
+  onViewDetail: (gift: GiftSuggestion) => void;
 }
 
 const GiftSuggestions = memo(function GiftSuggestions({ 
@@ -39,7 +40,8 @@ const GiftSuggestions = memo(function GiftSuggestions({
   onRegenerate, 
   isGenerating, 
   onSaveGift,
-  savedGiftIds
+  savedGiftIds,
+  onViewDetail
 }: GiftSuggestionsProps) {
   const { recipient, suggestions } = giftData;
 
@@ -185,7 +187,10 @@ const GiftSuggestions = memo(function GiftSuggestions({
                 </div>
                 
                 <div className="flex gap-3">
-                  <button className="flex-1 btn-modern gradient-primary text-white py-3 px-4 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer">
+                  <button 
+                    onClick={() => onViewDetail(suggestion)}
+                    className="flex-1 btn-modern gradient-primary text-white py-3 px-4 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  >
                     View Details
                   </button>
                   <button 
