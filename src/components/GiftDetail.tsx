@@ -1,66 +1,18 @@
 'use client';
 
 import { memo } from 'react';
+import type { GiftFormData, GiftSuggestion, SavedGift } from '@/types/gift';
+import { getCategoryIcon } from '@/utils/icons';
+import { formatDate, capitalizeFirst } from '@/utils/formatting';
 
 interface GiftDetailProps {
-  gift: {
-    id: string | number;
-    name: string;
-    description: string;
-    price: string;
-    category: string;
-    reason: string;
-    recipientName?: string;
-    savedAt?: Date;
-  };
-  recipient?: {
-    name: string;
-    relationship: string;
-    age: string;
-    interests: string[];
-    budget: string;
-    occasion: string;
-    additionalInfo: string;
-  };
+  gift: GiftSuggestion | SavedGift;
+  recipient?: GiftFormData;
   onBack: () => void;
   onSave?: () => void;
   isSaved?: boolean;
   onRemove?: () => void;
 }
-
-const getCategoryIcon = (category: string): string => {
-  const icons: { [key: string]: string } = {
-    'Technology': '💻',
-    'Kitchen & Cooking': '🍳',
-    'Books & Reading': '📚',
-    'Health & Fitness': '💪',
-    'Arts & Crafts': '🎨',
-    'Office & Professional': '💼',
-    'Experiences': '🎭',
-    'Personalized': '🎯',
-    'Fashion & Beauty': '👗',
-    'Sports & Outdoors': '⚽',
-    'Home & Garden': '🏠',
-    'Music': '🎵',
-    'Gaming': '🎮',
-    'Travel': '✈️',
-    'Food & Beverages': '🍷',
-    'Pets': '🐕',
-    'Education': '🎓',
-    'Entertainment': '🎬'
-  };
-  return icons[category] || '🎁';
-};
-
-const formatDate = (date: Date): string => {
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date);
-};
 
 const GiftDetail = memo(function GiftDetail({ 
   gift, 
@@ -72,7 +24,6 @@ const GiftDetail = memo(function GiftDetail({
 }: GiftDetailProps) {
   return (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-24 h-24 gradient-magic rounded-3xl mb-6 animate-pulse-glow">
           <span className="text-4xl">{getCategoryIcon(gift.category)}</span>
@@ -87,9 +38,9 @@ const GiftDetail = memo(function GiftDetail({
           <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200">
             {gift.price}
           </span>
-          {gift.savedAt && (
+          {'savedAt' in gift && gift.savedAt && (
             <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200">
-              Saved {formatDate(gift.savedAt)}
+              Saved {formatDate(gift.savedAt, 'long')}
             </span>
           )}
         </div>
@@ -103,9 +54,7 @@ const GiftDetail = memo(function GiftDetail({
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Main Gift Details */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Gift Description */}
           <div className="glass rounded-3xl shadow-2xl p-8 animate-float">
             <div className="flex items-center mb-6">
               <div className="w-12 h-12 gradient-primary rounded-2xl flex items-center justify-center mr-4">
@@ -124,7 +73,6 @@ const GiftDetail = memo(function GiftDetail({
             </div>
           </div>
 
-          {/* Recipient Information */}
           {recipient && (
             <div className="glass rounded-3xl shadow-2xl p-8 animate-float" style={{ animationDelay: '0.2s' }}>
               <div className="flex items-center mb-6">
@@ -160,9 +108,10 @@ const GiftDetail = memo(function GiftDetail({
                 <div>
                   <h3 className="font-semibold text-purple-200 mb-3">Interests</h3>
                   <div className="flex flex-wrap gap-2">
-                    {recipient.interests.map(interest => (
-                      <span key={interest} className="glass-text px-3 py-1 rounded-full text-sm font-medium text-purple-200">
-                        {interest.charAt(0).toUpperCase() + interest.slice(1)}
+                    {recipient.interests.map((interest, index) => (
+                      <span key={interest} className="glass-text px-3 py-1 rounded-full text-sm font-medium text-purple-200 relative">
+                        <span className="mr-1.5 text-purple-400 font-bold">#{index + 1}</span>
+                        {capitalizeFirst(interest)}
                       </span>
                     ))}
                   </div>
@@ -179,9 +128,7 @@ const GiftDetail = memo(function GiftDetail({
           )}
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Price and Actions */}
           <div className="glass rounded-3xl shadow-2xl p-6 animate-float" style={{ animationDelay: '0.4s' }}>
             <div className="text-center mb-6">
               <div className="text-3xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
@@ -216,7 +163,6 @@ const GiftDetail = memo(function GiftDetail({
             </div>
           </div>
 
-          {/* Gift Features */}
           <div className="glass rounded-3xl shadow-2xl p-6 animate-float" style={{ animationDelay: '0.6s' }}>
             <h3 className="font-semibold text-purple-200 mb-4">Gift Features</h3>
             <div className="space-y-3">
@@ -247,7 +193,6 @@ const GiftDetail = memo(function GiftDetail({
             </div>
           </div>
 
-          {/* Category Info */}
           <div className="glass rounded-3xl shadow-2xl p-6 animate-float" style={{ animationDelay: '0.8s' }}>
             <div className="text-center">
               <div className="text-4xl mb-3">{getCategoryIcon(gift.category)}</div>
@@ -261,7 +206,6 @@ const GiftDetail = memo(function GiftDetail({
         </div>
       </div>
 
-      {/* Bottom Action Bar */}
       <div className="mt-12 text-center">
         <div className="glass rounded-2xl p-6 max-w-2xl mx-auto">
           <p className="text-purple-200 text-sm leading-relaxed mb-4">

@@ -1,3 +1,4 @@
+@config "../../tailwind.config.ts";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
@@ -78,7 +79,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern form styling */
 input, select, textarea {
   color: var(--foreground) !important;
   background-color: var(--input) !important;
@@ -101,7 +101,6 @@ input::placeholder, textarea::placeholder {
   color: var(--muted-foreground) !important;
 }
 
-/* Glassmorphism effects with better contrast */
 .glass {
   background: rgba(139, 92, 246, 0.1);
   backdrop-filter: blur(20px);
@@ -109,14 +108,6 @@ input::placeholder, textarea::placeholder {
   box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.2);
 }
 
-.glass-dark {
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-}
-
-/* High contrast glass for text elements */
 .glass-text {
   background: rgba(139, 92, 246, 0.15);
   backdrop-filter: blur(20px);
@@ -124,7 +115,6 @@ input::placeholder, textarea::placeholder {
   box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.2);
 }
 
-/* Modern gradients */
 .gradient-primary {
   background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
 }
@@ -133,19 +123,10 @@ input::placeholder, textarea::placeholder {
   background: linear-gradient(135deg, #a855f7 0%, #c084fc 100%);
 }
 
-.gradient-accent {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-}
-
 .gradient-magic {
   background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
 }
 
-.gradient-dark {
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-}
-
-/* Sophisticated animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -154,11 +135,6 @@ input::placeholder, textarea::placeholder {
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
   50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.8); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 @keyframes neon-pulse {
@@ -182,17 +158,10 @@ input::placeholder, textarea::placeholder {
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
 .animate-neon {
   animation: neon-pulse 2s ease-in-out infinite;
 }
 
-/* Modern button styles */
 .btn-modern {
   position: relative;
   overflow: hidden;
@@ -222,7 +191,6 @@ input::placeholder, textarea::placeholder {
   box-shadow: var(--shadow-lg);
 }
 
-/* Card hover effects */
 .card-modern {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: var(--radius);
@@ -234,7 +202,6 @@ input::placeholder, textarea::placeholder {
   box-shadow: var(--shadow-2xl);
 }
 
-/* Modern scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -252,43 +219,22 @@ input::placeholder, textarea::placeholder {
   background: var(--primary);
 }
 
-/* Focus styles */
 .focus-ring {
   outline: none;
   box-shadow: 0 0 0 3px rgb(139 92 246 / 0.2);
 }
 
-/* Text selection */
 ::selection {
   background: var(--primary);
   color: var(--primary-foreground);
 }
 
-/* Loading states */
-.loading-dots {
-  display: inline-block;
-}
-
-.loading-dots::after {
-  content: '';
-  animation: dots 1.5s steps(5, end) infinite;
-}
-
-@keyframes dots {
-  0%, 20% { content: ''; }
-  40% { content: '.'; }
-  60% { content: '..'; }
-  80%, 100% { content: '...'; }
-}
-
-/* Responsive typography */
 @media (max-width: 640px) {
   body {
     font-size: 14px;
   }
 }
 
-/* Light mode overrides */
 @media (prefers-color-scheme: light) {
   input, select, textarea {
     color: var(--foreground) !important;

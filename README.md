@@ -48,7 +48,7 @@ cp .env.example .env.local
 
 4. Add your OpenRouter API key to `.env.local`:
 ```env
-NEXT_PUBLIC_OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 NEXT_PUBLIC_SITE_URL=https://gift.pieterrees.nl
 ```
 
@@ -59,6 +59,12 @@ npm run dev
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+7. To preview the production build locally with a single command:
+```bash
+npm run start
+```
+This runs `next build` automatically and then serves the standalone output via `node .next/standalone/server.js`.
+
 ## Deployment to gift.pieterrees.nl
 
 ### Option 1: Vercel (Recommended)
@@ -66,7 +72,7 @@ npm run dev
 1. Push your code to GitHub
 2. Connect your repository to Vercel
 3. Add environment variables in Vercel dashboard:
-   - `NEXT_PUBLIC_OPENROUTER_API_KEY`
+   - `OPENROUTER_API_KEY`
    - `NEXT_PUBLIC_SITE_URL`
 4. Configure custom domain `gift.pieterrees.nl` in Vercel
 5. Deploy!
@@ -90,7 +96,7 @@ npm run build
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `NEXT_PUBLIC_OPENROUTER_API_KEY` | Your OpenRouter API key | Yes |
+| `OPENROUTER_API_KEY` | Your OpenRouter API key (server-side only, never exposed to client) | Yes |
 | `NEXT_PUBLIC_SITE_URL` | Your site URL | No |
 
 ## API Configuration
@@ -143,7 +149,7 @@ The app uses OpenRouter API to access Claude 3.5 Sonnet for generating gift sugg
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
-- `npm run start` - Start production server
+- `npm run start` - Build (via `prestart`) then run the standalone server
 - `npm run lint` - Run ESLint
 
 ### Project Structure

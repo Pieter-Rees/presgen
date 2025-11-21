@@ -1,17 +1,9 @@
 'use client';
 
-import { useState, useCallback, memo } from 'react';
-
-interface SavedGift {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  category: string;
-  reason: string;
-  recipientName: string;
-  savedAt: Date;
-}
+import { useState, useCallback, memo, useMemo } from 'react';
+import type { SavedGift } from '@/types/gift';
+import { getCategoryIcon } from '@/utils/icons';
+import { formatDate } from '@/utils/formatting';
 
 interface SavedGiftsProps {
   savedGifts: SavedGift[];
@@ -24,45 +16,27 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'price'>('date');
 
-  const categories = ['all', ...Array.from(new Set(savedGifts.map(gift => gift.category)))];
+  const categories = useMemo(() => 
+    ['all', ...Array.from(new Set(savedGifts.map(gift => gift.category)))],
+    [savedGifts]
+  );
   
-  const filteredGifts = savedGifts
-    .filter(gift => filterCategory === 'all' || gift.category === filterCategory)
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'price':
-          return a.price.localeCompare(b.price);
-        case 'date':
-        default:
-          return new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime();
-      }
-    });
-
-  const getCategoryIcon = useCallback((category: string) => {
-    const icons: { [key: string]: string } = {
-      'Technology': '💻',
-      'Kitchen & Cooking': '🍳',
-      'Books & Reading': '📚',
-      'Health & Fitness': '💪',
-      'Arts & Crafts': '🎨',
-      'Office & Professional': '💼',
-      'Experiences': '🎉',
-      'Personalized': '🎁'
-    };
-    return icons[category] || '🎁';
-  }, []);
-
-  const formatDate = useCallback((date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  }, []);
+  const filteredGifts = useMemo(() => 
+    savedGifts
+      .filter(gift => filterCategory === 'all' || gift.category === filterCategory)
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'name':
+            return a.name.localeCompare(b.name);
+          case 'price':
+            return a.price.localeCompare(b.price);
+          case 'date':
+          default:
+            return new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime();
+        }
+      }),
+    [savedGifts, filterCategory, sortBy]
+  );
 
   const handleFilterChange = useCallback((value: string) => {
     setFilterCategory(value);
@@ -72,13 +46,8 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
     setSortBy(value);
   }, []);
 
-  const handleRemoveGift = useCallback((id: string) => {
-    onRemoveGift(id);
-  }, [onRemoveGift]);
-
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-20 h-20 gradient-magic rounded-3xl mb-6 animate-pulse-glow">
           <span className="text-3xl">💝</span>
@@ -98,7 +67,6 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
         </button>
       </div>
 
-      {/* Filters and Sort */}
       <div className="glass rounded-3xl shadow-2xl p-6 mb-8 animate-float">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -131,7 +99,6 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
         </div>
       </div>
 
-      {/* Saved Gifts Grid */}
       {filteredGifts.length === 0 ? (
         <div className="text-center py-16">
           <div className="inline-flex items-center justify-center w-24 h-24 gradient-secondary rounded-3xl mb-6">
@@ -194,7 +161,7 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
                   View Details
                 </button>
                 <button 
-                  onClick={() => handleRemoveGift(gift.id)}
+                  onClick={() => onRemoveGift(gift.id)}
                   className="glass-text text-red-400 py-2 px-3 rounded-xl text-sm font-semibold hover:bg-red-500/20 transition-all duration-300 cursor-pointer"
                 >
                   Remove

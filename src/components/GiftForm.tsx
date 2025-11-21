@@ -1,16 +1,9 @@
 'use client';
 
 import { useState, useCallback, memo } from 'react';
-
-interface GiftFormData {
-  name: string;
-  relationship: string;
-  age: string;
-  interests: string[];
-  budget: string;
-  occasion: string;
-  additionalInfo: string;
-}
+import type { GiftFormData } from '@/types/gift';
+import { interestOptions, relationshipOptions, budgetOptions, occasionOptions, ageOptions } from '@/config/formOptions';
+import { capitalizeFirst } from '@/utils/formatting';
 
 interface GiftFormErrors {
   name?: string;
@@ -39,26 +32,6 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
   });
 
   const [errors, setErrors] = useState<GiftFormErrors>({});
-
-  const interestOptions = [
-    'technology', 'cooking', 'reading', 'fitness', 'art', 'music', 
-    'travel', 'gaming', 'fashion', 'sports', 'photography', 'gardening'
-  ];
-
-  const relationshipOptions = [
-    'friend', 'family', 'colleague', 'partner', 'acquaintance'
-  ];
-
-  const budgetOptions = [
-    { value: 'low', label: 'Under $50', range: '$0-50', icon: '💰' },
-    { value: 'medium', label: '$50-150', range: '$50-150', icon: '💎' },
-    { value: 'high', label: '$150+', range: '$150+', icon: '👑' }
-  ];
-
-  const occasionOptions = [
-    'birthday', 'christmas', 'anniversary', 'graduation', 'wedding', 
-    'housewarming', 'thank you', 'just because'
-  ];
 
   const handleStringChange = useCallback((field: 'name' | 'relationship' | 'age' | 'budget' | 'occasion' | 'additionalInfo', value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -114,7 +87,6 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Name */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-purple-200">
               Recipient&apos;s Name *
@@ -131,7 +103,6 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
             {errors.name && <p className="text-red-400 text-sm font-medium">{errors.name}</p>}
           </div>
 
-          {/* Relationship */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-purple-200">
               Your Relationship *
@@ -146,14 +117,13 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
               <option value="">Select relationship</option>
               {relationshipOptions.map(option => (
                 <option key={option} value={option}>
-                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                  {capitalizeFirst(option)}
                 </option>
               ))}
             </select>
             {errors.relationship && <p className="text-red-400 text-sm font-medium">{errors.relationship}</p>}
           </div>
 
-          {/* Age */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-purple-200">
               Age Range *
@@ -166,43 +136,51 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
               }`}
             >
               <option value="">Select age range</option>
-              <option value="child">Child (0-12)</option>
-              <option value="teen">Teen (13-19)</option>
-              <option value="young-adult">Young Adult (20-29)</option>
-              <option value="adult">Adult (30-49)</option>
-              <option value="senior">Senior (50+)</option>
+              {ageOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
             {errors.age && <p className="text-red-400 text-sm font-medium">{errors.age}</p>}
           </div>
 
-          {/* Interests */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-purple-200">
-              Interests * (Select all that apply)
+              Interests * (Click to set importance - first click is most important)
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {interestOptions.map(interest => (
-                <label key={interest} className="relative group cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.interests.includes(interest)}
-                    onChange={() => handleInterestToggle(interest)}
-                    className="sr-only"
-                  />
-                  <div className={`p-4 rounded-xl border-2 transition-all duration-300 group-hover:scale-105 cursor-pointer ${
-                    formData.interests.includes(interest)
-                      ? 'border-purple-500 bg-purple-500/20 text-purple-200 shadow-lg'
-                      : 'border-purple-500/30 bg-white/5 hover:border-purple-400/50 hover:bg-purple-500/10'
-                  }`}>
-                    <span className="text-sm font-medium capitalize">{interest}</span>
-                  </div>
-                </label>
-              ))}
+              {interestOptions.map(interest => {
+                const index = formData.interests.indexOf(interest);
+                const isSelected = index !== -1;
+                const importanceNumber = isSelected ? index + 1 : null;
+                return (
+                  <label key={interest} className="relative group cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleInterestToggle(interest)}
+                      className="sr-only"
+                    />
+                    <div className={`p-4 rounded-xl border-2 transition-all duration-300 group-hover:scale-105 cursor-pointer relative ${
+                      isSelected
+                        ? 'border-purple-500 bg-purple-500/20 text-purple-200 shadow-lg'
+                        : 'border-purple-500/30 bg-white/5 hover:border-purple-400/50 hover:bg-purple-500/10'
+                    }`}>
+                      {importanceNumber && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                          {importanceNumber}
+                        </div>
+                      )}
+                      <span className="text-sm font-medium capitalize">{capitalizeFirst(interest)}</span>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
             {errors.interests && <p className="text-red-400 text-sm font-medium">{errors.interests}</p>}
           </div>
 
-          {/* Budget */}
           <div className="space-y-4">
             <label className="block text-sm font-semibold text-purple-200">
               Budget Range *
@@ -233,7 +211,6 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
             {errors.budget && <p className="text-red-400 text-sm font-medium">{errors.budget}</p>}
           </div>
 
-          {/* Occasion */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-purple-200">
               Occasion *
@@ -248,14 +225,13 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
               <option value="">Select occasion</option>
               {occasionOptions.map(option => (
                 <option key={option} value={option}>
-                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                  {capitalizeFirst(option)}
                 </option>
               ))}
             </select>
             {errors.occasion && <p className="text-red-400 text-sm font-medium">{errors.occasion}</p>}
           </div>
 
-          {/* Additional Info */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-purple-200">
               Additional Information (Optional)
@@ -269,7 +245,6 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
             />
           </div>
 
-          {/* Submit Button */}
           <div className="pt-6">
             <button
               type="submit"

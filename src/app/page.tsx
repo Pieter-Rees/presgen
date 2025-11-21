@@ -1,111 +1,26 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import GiftForm from '@/components/GiftForm';
 import GiftSuggestions from '@/components/GiftSuggestions';
 import SavedGifts from '@/components/SavedGifts';
 import GiftDetail from '@/components/GiftDetail';
 import Header from '@/components/Header';
-
-interface GiftFormData {
-  name: string;
-  relationship: string;
-  age: string;
-  interests: string[];
-  budget: string;
-  occasion: string;
-  additionalInfo: string;
-}
-
-interface GiftSuggestion {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  category: string;
-  reason: string;
-}
-
-interface SavedGift {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  category: string;
-  reason: string;
-  recipientName: string;
-  savedAt: Date;
-}
-
-interface GiftData {
-  recipient: GiftFormData;
-  suggestions: GiftSuggestion[];
-}
-
-type ViewMode = 'generator' | 'saved' | 'detail';
+import { useSavedGifts } from '@/hooks/useSavedGifts';
+import { useGiftGeneration } from '@/hooks/useGiftGeneration';
+import type { ViewMode, GiftSuggestion, SavedGift, GiftFormData } from '@/types/gift';
 
 export default function Home() {
-  const [giftData, setGiftData] = useState<GiftData | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [savedGifts, setSavedGifts] = useState<SavedGift[]>([]);
-  const [savedGiftIds, setSavedGiftIds] = useState<Set<number>>(new Set());
   const [viewMode, setViewMode] = useState<ViewMode>('generator');
   const [selectedGift, setSelectedGift] = useState<GiftSuggestion | SavedGift | null>(null);
-
-  // Load saved gifts from localStorage on component mount
-  useEffect(() => {
-    const saved = localStorage.getItem('presgen-saved-gifts');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const gifts = parsed.map((gift: SavedGift) => ({
-          ...gift,
-          savedAt: new Date(gift.savedAt)
-        }));
-        setSavedGifts(gifts);
-        setSavedGiftIds(new Set(gifts.map((gift: SavedGift) => parseInt(gift.id.split('-')[0]))));
-      } catch {
-        // Silently handle localStorage errors
-      }
-    }
-  }, []);
-
-  // Save gifts to localStorage whenever savedGifts changes
-  useEffect(() => {
-    localStorage.setItem('presgen-saved-gifts', JSON.stringify(savedGifts));
-  }, [savedGifts]);
+  
+  const { savedGifts, savedGiftIds, saveGift, removeGift, getSavedGiftsForRecipient } = useSavedGifts();
+  const { giftData, isGenerating, error, generateGifts, regenerateGifts, reset, setError } = useGiftGeneration();
 
   const handleSaveGift = useCallback((gift: GiftSuggestion) => {
-    if (savedGiftIds.has(gift.id)) return; // Already saved
-
-    const savedGift: SavedGift = {
-      id: `${gift.id}-${Date.now()}`, // Unique ID
-      name: gift.name,
-      description: gift.description,
-      price: gift.price,
-      category: gift.category,
-      reason: gift.reason,
-      recipientName: giftData?.recipient.name || 'Unknown',
-      savedAt: new Date()
-    };
-
-    setSavedGifts(prev => [...prev, savedGift]);
-    setSavedGiftIds(prev => new Set([...prev, gift.id]));
-  }, [savedGiftIds, giftData?.recipient.name]);
-
-  const handleRemoveGift = useCallback((id: string) => {
-    const giftToRemove = savedGifts.find(gift => gift.id === id);
-    if (giftToRemove) {
-      const originalId = parseInt(giftToRemove.id.split('-')[0]);
-      setSavedGifts(prev => prev.filter(gift => gift.id !== id));
-      setSavedGiftIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(originalId);
-        return newSet;
-      });
-    }
-  }, [savedGifts]);
+    const recipientName = giftData?.recipient.name || 'Unknown';
+    saveGift(gift, recipientName);
+  }, [saveGift, giftData?.recipient.name]);
 
   const handleViewSavedGifts = useCallback(() => {
     setViewMode('saved');
@@ -117,9 +32,8 @@ export default function Home() {
 
   const handleGenerateNewGift = useCallback(() => {
     setViewMode('generator');
-    setGiftData(null);
-    setError(null);
-  }, []);
+    reset();
+  }, [reset]);
 
   const handleViewGiftDetail = useCallback((gift: GiftSuggestion | SavedGift) => {
     setSelectedGift(gift);
@@ -132,236 +46,29 @@ export default function Home() {
   }, []);
 
   const handleGenerateGifts = useCallback(async (formData: GiftFormData) => {
-    setIsGenerating(true);
-    setError(null);
-    
-    // Get saved gifts for this recipient to avoid duplicates
-    const savedGiftsForRecipient = savedGifts.filter(gift => 
-      gift.recipientName === formData.name
-    );
-    
-    // Create a list of saved gift names to avoid
+    const savedGiftsForRecipient = getSavedGiftsForRecipient(formData.name);
     const savedGiftNames = savedGiftsForRecipient.map(gift => gift.name);
-    const savedGiftNamesText = savedGiftNames.length > 0 
-      ? `\n\nIMPORTANT: Please avoid these gifts that have already been saved for this person:\n${savedGiftNames.map(name => `- ${name}`).join('\n')}\n\nMake sure your new suggestions are completely different from these saved gifts.`
-      : '';
-    
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + process.env.NEXT_PUBLIC_OPENROUTER_API_KEY,
-        },
-        body: JSON.stringify({
-          model: 'anthropic/claude-3.5-sonnet',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful gift consultant that provides personalized gift suggestions in JSON format.'
-            },
-            {
-              role: 'user',
-              content: `You are an expert gift consultant. Generate 6 personalized gift suggestions for the following person:
-
-Recipient: ${formData.name}
-Relationship: ${formData.relationship}
-Age Range: ${formData.age}
-Interests: ${formData.interests.join(', ')}
-Budget: ${formData.budget}
-Occasion: ${formData.occasion}
-${formData.additionalInfo ? `Additional Information: ${formData.additionalInfo}` : ''}${savedGiftNamesText}
-
-Please provide 6 gift suggestions in the following JSON format:
-{
-  "suggestions": [
-    {
-      "id": 1,
-      "name": "Gift Name",
-      "description": "Brief description of the gift",
-      "price": "Price range (e.g., $50-100)",
-      "category": "Category (e.g., Technology, Kitchen & Cooking, Books & Reading, Health & Fitness, Arts & Crafts, Office & Professional, Experiences, Personalized)",
-      "reason": "Why this gift is perfect for this person"
-    }
-  ]
-}
-
-Make sure the suggestions are:
-1. Within the specified budget range
-2. Relevant to their interests and age
-3. Appropriate for the relationship and occasion
-4. Practical and thoughtful
-5. Include a mix of different categories
-6. NOT in the list of already saved gifts provided above
-
-Respond only with valid JSON, no additional text.`
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content;
-      
-      if (!aiResponse) {
-        throw new Error('No response from AI model');
-      }
-
-      // Parse the JSON response from AI
-      let suggestions;
-      try {
-        suggestions = JSON.parse(aiResponse);
-      } catch {
-        throw new Error('Invalid response format from AI');
-      }
-
-      if (suggestions.suggestions && suggestions.suggestions.length > 0) {
-        setGiftData({
-          recipient: formData,
-          suggestions: suggestions.suggestions
-        });
-      } else {
-        throw new Error('No suggestions received from AI');
-      }
-
-    } catch (error) {
-      console.error('Error generating gifts:', error);
-      setError(error instanceof Error ? error.message : 'Failed to generate gift suggestions. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [savedGifts]);
+    await generateGifts(formData, savedGiftNames);
+  }, [generateGifts, getSavedGiftsForRecipient]);
 
   const handleRegenerateGifts = useCallback(async () => {
     if (!giftData) return;
-    
-    setIsGenerating(true);
-    setError(null);
-    
-    // Get saved gifts for this recipient to avoid duplicates
-    const savedGiftsForRecipient = savedGifts.filter(gift => 
-      gift.recipientName === giftData.recipient.name
-    );
-    
-    // Create a list of saved gift names to avoid
+    const savedGiftsForRecipient = getSavedGiftsForRecipient(giftData.recipient.name);
     const savedGiftNames = savedGiftsForRecipient.map(gift => gift.name);
-    const savedGiftNamesText = savedGiftNames.length > 0 
-      ? `\n\nIMPORTANT: Please avoid these gifts that have already been saved for this person:\n${savedGiftNames.map(name => `- ${name}`).join('\n')}\n\nMake sure your new suggestions are completely different from these saved gifts.`
-      : '';
-    
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + process.env.NEXT_PUBLIC_OPENROUTER_API_KEY,
-        },
-        body: JSON.stringify({
-          model: 'anthropic/claude-3.5-sonnet',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful gift consultant that provides personalized gift suggestions in JSON format.'
-            },
-            {
-              role: 'user',
-              content: `You are an expert gift consultant. Generate 6 NEW and DIFFERENT personalized gift suggestions for the following person (avoid repeating previous suggestions):
-
-Recipient: ${giftData.recipient.name}
-Relationship: ${giftData.recipient.relationship}
-Age Range: ${giftData.recipient.age}
-Interests: ${giftData.recipient.interests.join(', ')}
-Budget: ${giftData.recipient.budget}
-Occasion: ${giftData.recipient.occasion}
-${giftData.recipient.additionalInfo ? `Additional Information: ${giftData.recipient.additionalInfo}` : ''}${savedGiftNamesText}
-
-Please provide 6 NEW gift suggestions in the following JSON format:
-{
-  "suggestions": [
-    {
-      "id": 1,
-      "name": "Gift Name",
-      "description": "Brief description of the gift",
-      "price": "Price range (e.g., $50-100)",
-      "category": "Category (e.g., Technology, Kitchen & Cooking, Books & Reading, Health & Fitness, Arts & Crafts, Office & Professional, Experiences, Personalized)",
-      "reason": "Why this gift is perfect for this person"
-    }
-  ]
-}
-
-Make sure the suggestions are:
-1. Within the specified budget range
-2. Relevant to their interests and age
-3. Appropriate for the relationship and occasion
-4. Practical and thoughtful
-5. Include a mix of different categories
-6. DIFFERENT from previous suggestions and saved gifts
-7. NOT in the list of already saved gifts provided above
-
-Respond only with valid JSON, no additional text.`
-            }
-          ],
-          temperature: 0.9, // Higher temperature for more variety
-          max_tokens: 1000,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content;
-      
-      if (!aiResponse) {
-        throw new Error('No response from AI model');
-      }
-
-      // Parse the JSON response from AI
-      let suggestions;
-      try {
-        suggestions = JSON.parse(aiResponse);
-      } catch {
-        throw new Error('Invalid response format from AI');
-      }
-
-      if (suggestions.suggestions && suggestions.suggestions.length > 0) {
-        setGiftData(prev => ({
-          ...prev!,
-          suggestions: suggestions.suggestions
-        }));
-      } else {
-        throw new Error('No suggestions received from AI');
-      }
-
-    } catch (error) {
-      console.error('Error regenerating gifts:', error);
-      setError(error instanceof Error ? error.message : 'Failed to regenerate gift suggestions. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [giftData, savedGifts]);
+    await regenerateGifts(savedGiftNames);
+  }, [giftData, regenerateGifts, getSavedGiftsForRecipient]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900"></div>
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.15),transparent_50%)]"></div>
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.1),transparent_50%)]"></div>
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(192,132,252,0.1),transparent_50%)]"></div>
       
-      {/* Floating Elements */}
       <div className="fixed top-20 left-10 w-32 h-32 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-20 animate-float animate-neon"></div>
       <div className="fixed top-40 right-20 w-24 h-24 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full opacity-20 animate-float" style={{ animationDelay: '1s' }}></div>
       <div className="fixed bottom-20 left-20 w-40 h-40 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
       
-      {/* Grid Pattern */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       
       <Header 
@@ -422,10 +129,7 @@ Respond only with valid JSON, no additional text.`
           ) : (
             <GiftSuggestions 
               giftData={giftData} 
-              onReset={() => {
-                setGiftData(null);
-                setError(null);
-              }}
+              onReset={reset}
               onRegenerate={handleRegenerateGifts}
               isGenerating={isGenerating}
               onSaveGift={handleSaveGift}
@@ -436,7 +140,7 @@ Respond only with valid JSON, no additional text.`
         ) : viewMode === 'saved' ? (
           <SavedGifts 
             savedGifts={savedGifts}
-            onRemoveGift={handleRemoveGift}
+            onRemoveGift={removeGift}
             onBack={handleBackToGenerator}
             onViewDetail={handleViewGiftDetail}
           />
@@ -445,14 +149,13 @@ Respond only with valid JSON, no additional text.`
             gift={selectedGift}
             recipient={giftData?.recipient}
             onBack={handleBackFromDetail}
-            onSave={selectedGift && 'recipientName' in selectedGift ? undefined : () => handleSaveGift(selectedGift as GiftSuggestion)}
+              onSave={selectedGift && 'recipientName' in selectedGift ? undefined : () => handleSaveGift(selectedGift as GiftSuggestion)}
             isSaved={selectedGift && 'recipientName' in selectedGift ? true : savedGiftIds.has((selectedGift as GiftSuggestion).id)}
-            onRemove={selectedGift && 'recipientName' in selectedGift ? () => handleRemoveGift(selectedGift.id) : undefined}
+            onRemove={selectedGift && 'recipientName' in selectedGift ? () => removeGift(selectedGift.id) : undefined}
           />
         ) : null}
       </main>
       
-      {/* Footer */}
       <footer className="relative mt-20 py-8 text-center">
         <div className="glass rounded-2xl p-6 max-w-2xl mx-auto">
           <p className="text-purple-200 text-sm">

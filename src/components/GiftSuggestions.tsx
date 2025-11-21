@@ -1,28 +1,9 @@
 'use client';
 
 import { useCallback, memo } from 'react';
-
-interface GiftSuggestion {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  category: string;
-  reason: string;
-}
-
-interface GiftData {
-  recipient: {
-    name: string;
-    relationship: string;
-    age: string;
-    interests: string[];
-    budget: string;
-    occasion: string;
-    additionalInfo: string;
-  };
-  suggestions: GiftSuggestion[];
-}
+import type { GiftData, GiftSuggestion } from '@/types/gift';
+import { getCategoryIcon } from '@/utils/icons';
+import { getBudgetLabel, capitalizeFirst, formatAgeRange } from '@/utils/formatting';
 
 interface GiftSuggestionsProps {
   giftData: GiftData;
@@ -45,36 +26,12 @@ const GiftSuggestions = memo(function GiftSuggestions({
 }: GiftSuggestionsProps) {
   const { recipient, suggestions } = giftData;
 
-  const getCategoryIcon = useCallback((category: string) => {
-    const icons: { [key: string]: string } = {
-      'Technology': '💻',
-      'Kitchen & Cooking': '🍳',
-      'Books & Reading': '📚',
-      'Health & Fitness': '💪',
-      'Arts & Crafts': '🎨',
-      'Office & Professional': '💼',
-      'Experiences': '🎉',
-      'Personalized': '🎁'
-    };
-    return icons[category] || '🎁';
-  }, []);
-
-  const getBudgetLabel = useCallback((budget: string) => {
-    const labels: { [key: string]: string } = {
-      'low': 'Under $50',
-      'medium': '$50-150',
-      'high': '$150+'
-    };
-    return labels[budget] || budget;
-  }, []);
-
   const handleSaveGift = useCallback((gift: GiftSuggestion) => {
     onSaveGift(gift);
   }, [onSaveGift]);
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-20 h-20 gradient-magic rounded-3xl mb-6 animate-pulse-glow">
           <span className="text-3xl">🎁</span>
@@ -84,16 +41,16 @@ const GiftSuggestions = memo(function GiftSuggestions({
         </h2>
         <div className="flex flex-wrap justify-center gap-3 text-sm">
           <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
-            {recipient.relationship.charAt(0).toUpperCase() + recipient.relationship.slice(1)}
+            {capitalizeFirst(recipient.relationship)}
           </span>
           <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
-            {recipient.age.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            {formatAgeRange(recipient.age)}
           </span>
           <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
             {getBudgetLabel(recipient.budget)}
           </span>
           <span className="glass-text px-4 py-2 rounded-full text-purple-200 font-medium">
-            {recipient.occasion.charAt(0).toUpperCase() + recipient.occasion.slice(1)}
+            {capitalizeFirst(recipient.occasion)}
           </span>
           <span className="gradient-primary text-white px-4 py-2 rounded-full font-medium animate-pulse">
             🤖 AI-Powered
@@ -101,7 +58,6 @@ const GiftSuggestions = memo(function GiftSuggestions({
         </div>
       </div>
 
-      {/* Recipient Summary */}
       <div className="glass rounded-3xl shadow-2xl p-8 mb-12 animate-float">
         <div className="flex items-center mb-6">
           <div className="w-12 h-12 gradient-secondary rounded-2xl flex items-center justify-center mr-4">
@@ -115,7 +71,7 @@ const GiftSuggestions = memo(function GiftSuggestions({
             <div className="flex flex-wrap gap-3">
               {recipient.interests.map(interest => (
                 <span key={interest} className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200">
-                  {interest.charAt(0).toUpperCase() + interest.slice(1)}
+                  {capitalizeFirst(interest)}
                 </span>
               ))}
             </div>
@@ -129,7 +85,6 @@ const GiftSuggestions = memo(function GiftSuggestions({
         </div>
       </div>
 
-      {/* Gift Suggestions */}
       <div className="mb-12">
         <div className="text-center mb-8">
           <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
@@ -216,7 +171,6 @@ const GiftSuggestions = memo(function GiftSuggestions({
         )}
       </div>
 
-      {/* Action Buttons */}
       <div className="text-center space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
