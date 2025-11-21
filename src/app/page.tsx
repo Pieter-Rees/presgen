@@ -19,8 +19,9 @@ export default function Home() {
 
   const handleSaveGift = useCallback((gift: GiftSuggestion) => {
     const recipientName = giftData?.recipient.name || 'Unknown';
-    saveGift(gift, recipientName);
-  }, [saveGift, giftData?.recipient.name]);
+    const recipientBudget = giftData?.recipient.budget;
+    saveGift(gift, recipientName, recipientBudget);
+  }, [saveGift, giftData?.recipient?.name, giftData?.recipient?.budget]);
 
   const handleViewSavedGifts = useCallback(() => {
     setViewMode('saved');

@@ -1,9 +1,9 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import type { GiftFormData, GiftSuggestion, SavedGift } from '@/types/gift';
 import { getCategoryIcon } from '@/utils/icons';
-import { formatDate, capitalizeFirst } from '@/utils/formatting';
+import { formatDate, capitalizeFirst, getPriceLabel } from '@/utils/formatting';
 
 interface GiftDetailProps {
   gift: GiftSuggestion | SavedGift;
@@ -22,6 +22,7 @@ const GiftDetail = memo(function GiftDetail({
   isSaved, 
   onRemove 
 }: GiftDetailProps) {
+  const priceLabel = useMemo(() => getPriceLabel(gift.price, recipient?.budget), [gift.price, recipient?.budget]);
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-12">
@@ -36,7 +37,7 @@ const GiftDetail = memo(function GiftDetail({
             {gift.category}
           </span>
           <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200">
-            {gift.price}
+            {priceLabel}
           </span>
           {'savedAt' in gift && gift.savedAt && (
             <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200">
@@ -131,8 +132,8 @@ const GiftDetail = memo(function GiftDetail({
         <div className="space-y-6">
           <div className="glass rounded-3xl shadow-2xl p-6 animate-float" style={{ animationDelay: '0.4s' }}>
             <div className="text-center mb-6">
-              <div className="text-3xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                {gift.price}
+              <div className="text-3xl font-bold text-purple-100 mb-2">
+                {priceLabel}
               </div>
               <p className="text-purple-300 text-sm">Estimated Price Range</p>
             </div>

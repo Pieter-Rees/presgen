@@ -3,7 +3,7 @@
 import { useState, useCallback, memo, useMemo } from 'react';
 import type { SavedGift } from '@/types/gift';
 import { getCategoryIcon } from '@/utils/icons';
-import { formatDate } from '@/utils/formatting';
+import { formatDate, getPriceLabel } from '@/utils/formatting';
 
 interface SavedGiftsProps {
   savedGifts: SavedGift[];
@@ -128,8 +128,8 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
                   <span className="glass-text px-3 py-1 rounded-full text-xs font-semibold text-purple-200">
                     {gift.category}
                   </span>
-                  <div className="text-lg font-bold gradient-primary bg-clip-text text-transparent mt-2">
-                    {gift.price}
+                  <div className="text-lg font-bold text-purple-100 mt-2">
+                    {getPriceLabel(gift.price)}
                   </div>
                 </div>
               </div>

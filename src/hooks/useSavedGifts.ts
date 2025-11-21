@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { SavedGift, GiftSuggestion } from '@/types/gift';
+import { getPriceLabel } from '@/utils/formatting';
 
 const STORAGE_KEY = 'presgen-saved-gifts';
 
@@ -14,6 +15,7 @@ export function useSavedGifts() {
         const parsed = JSON.parse(saved);
         const gifts = parsed.map((gift: SavedGift) => ({
           ...gift,
+          price: gift.price?.trim() ? gift.price : 'Range unavailable',
           savedAt: new Date(gift.savedAt)
         }));
         setSavedGifts(gifts);
@@ -27,14 +29,16 @@ export function useSavedGifts() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(savedGifts));
   }, [savedGifts]);
 
-  const saveGift = useCallback((gift: GiftSuggestion, recipientName: string) => {
+  const saveGift = useCallback((gift: GiftSuggestion, recipientName: string, recipientBudget?: string) => {
     if (savedGiftIds.has(gift.id)) return;
+
+    const priceLabel = getPriceLabel(gift.price, recipientBudget);
 
     const savedGift: SavedGift = {
       id: `${gift.id}-${Date.now()}`,
       name: gift.name,
       description: gift.description,
-      price: gift.price,
+      price: priceLabel,
       category: gift.category,
       reason: gift.reason,
       recipientName,

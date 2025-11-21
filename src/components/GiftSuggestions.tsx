@@ -3,7 +3,7 @@
 import { useCallback, memo } from 'react';
 import type { GiftData, GiftSuggestion } from '@/types/gift';
 import { getCategoryIcon } from '@/utils/icons';
-import { getBudgetLabel, capitalizeFirst, formatAgeRange } from '@/utils/formatting';
+import { getBudgetLabel, capitalizeFirst, formatAgeRange, getPriceLabel } from '@/utils/formatting';
 
 interface GiftSuggestionsProps {
   giftData: GiftData;
@@ -126,8 +126,8 @@ const GiftSuggestions = memo(function GiftSuggestions({
                     <span className="glass-text px-3 py-1 rounded-full text-xs font-semibold text-purple-200">
                       {suggestion.category}
                     </span>
-                    <div className="text-xl font-bold gradient-primary bg-clip-text text-transparent mt-2">
-                      {suggestion.price}
+                    <div className="text-xl font-bold text-purple-100 mt-2">
+                      {getPriceLabel(suggestion.price, recipient.budget)}
                     </div>
                   </div>
                 </div>

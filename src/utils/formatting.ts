@@ -35,3 +35,14 @@ export function formatAgeRange(age: string): string {
   return age.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
+export function getPriceLabel(price: string | undefined, budget?: string): string {
+  const cleanedPrice = price?.trim();
+  if (cleanedPrice) {
+    return cleanedPrice;
+  }
+  if (budget) {
+    return getBudgetLabel(budget);
+  }
+  return 'Range unavailable';
+}
+
