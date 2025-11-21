@@ -1,3 +1,5 @@
+import type { GiftFormData } from '@/types/gift';
+
 export const API_CONFIG = {
   model: 'x-ai/grok-4.1-fast:free',
   defaultTemperature: 0.7,
@@ -8,15 +10,11 @@ export const API_CONFIG = {
 
 export const SYSTEM_PROMPT = 'You are a helpful gift consultant that provides personalized gift suggestions in JSON format.';
 
-export function buildGiftPrompt(formData: {
-  name: string;
-  relationship: string;
-  age: string;
-  interests: string[];
-  budget: string;
-  occasion: string;
-  additionalInfo: string;
-}, savedGiftNames: string[], isRegenerate: boolean = false): string {
+export function buildGiftPrompt(
+  formData: GiftFormData,
+  savedGiftNames: string[],
+  isRegenerate: boolean = false
+): string {
   const savedGiftNamesText = savedGiftNames.length > 0 
     ? `\n\nIMPORTANT: Please avoid these gifts that have already been saved for this person:\n${savedGiftNames.map(name => `- ${name}`).join('\n')}\n\nMake sure your new suggestions are completely different from these saved gifts.`
     : '';

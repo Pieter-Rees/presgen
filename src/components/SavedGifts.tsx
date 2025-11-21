@@ -49,7 +49,7 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
   return (
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-20 h-20 gradient-magic rounded-3xl mb-6 animate-pulse-glow">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-3xl mb-6">
           <span className="text-3xl">💝</span>
         </div>
         <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-6">
@@ -61,13 +61,13 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
         
         <button
           onClick={onBack}
-          className="btn-modern gradient-secondary text-white font-semibold py-3 px-6 rounded-xl text-lg hover:shadow-xl transition-all duration-300 mb-8 cursor-pointer"
+          className="bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl text-lg hover:shadow-xl transition-all duration-300 mb-8 cursor-pointer"
         >
           ← Back to Generator
         </button>
       </div>
 
-      <div className="glass rounded-3xl shadow-2xl p-6 mb-8 animate-float">
+      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-6 mb-8">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex items-center space-x-4">
             <label className="text-sm font-semibold text-purple-200">Filter by:</label>
@@ -101,7 +101,7 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
 
       {filteredGifts.length === 0 ? (
         <div className="text-center py-16">
-          <div className="inline-flex items-center justify-center w-24 h-24 gradient-secondary rounded-3xl mb-6">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-pink-600 to-purple-600 rounded-3xl mb-6">
             <span className="text-3xl">📦</span>
           </div>
           <h4 className="text-xl font-semibold text-purple-200 mb-2">
@@ -116,16 +116,15 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredGifts.map((gift, index) => (
+          {filteredGifts.map((gift) => (
             <div 
               key={gift.id} 
-              className="card-modern glass p-6 hover:shadow-2xl"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-lg hover:shadow-2xl transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="text-3xl animate-float">{getCategoryIcon(gift.category)}</div>
+                <div className="text-3xl">{getCategoryIcon(gift.category)}</div>
                 <div className="text-right">
-                  <span className="glass-text px-3 py-1 rounded-full text-xs font-semibold text-purple-200">
+                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold text-purple-200">
                     {gift.category}
                   </span>
                   <div className="text-lg font-bold text-purple-100 mt-2">
@@ -142,7 +141,7 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
                 {gift.description}
               </p>
               
-              <div className="glass-text rounded-2xl p-3 mb-4">
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 mb-4">
                 <p className="text-sm text-purple-200 leading-relaxed">
                   <span className="font-semibold">Why this gift:</span> {gift.reason}
                 </p>
@@ -156,13 +155,13 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
               <div className="flex gap-3">
                 <button 
                   onClick={() => onViewDetail(gift)}
-                  className="flex-1 btn-modern gradient-primary text-white py-2 px-3 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-3 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
                 >
                   View Details
                 </button>
                 <button 
                   onClick={() => onRemoveGift(gift.id)}
-                  className="glass-text text-red-400 py-2 px-3 rounded-xl text-sm font-semibold hover:bg-red-500/20 transition-all duration-300 cursor-pointer"
+                  className="bg-white/10 backdrop-blur-sm border border-white/20 text-red-400 py-2 px-3 rounded-xl text-sm font-semibold hover:bg-red-500/20 transition-all duration-300 cursor-pointer"
                 >
                   Remove
                 </button>

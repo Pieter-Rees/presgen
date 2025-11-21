@@ -8,23 +8,34 @@ import GiftDetail from '@/components/GiftDetail';
 import Header from '@/components/Header';
 import { useSavedGifts } from '@/hooks/useSavedGifts';
 import { useGiftGeneration } from '@/hooks/useGiftGeneration';
-import type { ViewMode, GiftSuggestion, SavedGift, GiftFormData } from '@/types/gift';
+import { useSavedRecipients } from '@/hooks/useSavedRecipients';
+import SavedRecipients from '@/components/SavedRecipients';
+import type { ViewMode, GiftSuggestion, SavedGift, GiftFormData, SavedRecipient } from '@/types/gift';
+import { isSavedGift } from '@/types/gift';
 
 export default function Home() {
   const [viewMode, setViewMode] = useState<ViewMode>('generator');
   const [selectedGift, setSelectedGift] = useState<GiftSuggestion | SavedGift | null>(null);
-  
+  const [prefilledRecipient, setPrefilledRecipient] = useState<GiftFormData | null>(null);
+  const [formSeed, setFormSeed] = useState(0);
+
   const { savedGifts, savedGiftIds, saveGift, removeGift, getSavedGiftsForRecipient } = useSavedGifts();
+  const { savedRecipients, saveRecipientProfile, removeRecipient } = useSavedRecipients();
   const { giftData, isGenerating, error, generateGifts, regenerateGifts, reset, setError } = useGiftGeneration();
 
+  const recipientName = giftData?.recipient?.name ?? 'Unknown';
+  const recipientBudget = giftData?.recipient?.budget;
+
   const handleSaveGift = useCallback((gift: GiftSuggestion) => {
-    const recipientName = giftData?.recipient.name || 'Unknown';
-    const recipientBudget = giftData?.recipient.budget;
     saveGift(gift, recipientName, recipientBudget);
-  }, [saveGift, giftData?.recipient?.name, giftData?.recipient?.budget]);
+  }, [saveGift, recipientName, recipientBudget]);
 
   const handleViewSavedGifts = useCallback(() => {
     setViewMode('saved');
+  }, []);
+
+  const handleViewSavedRecipients = useCallback(() => {
+    setViewMode('recipients');
   }, []);
 
   const handleBackToGenerator = useCallback(() => {
@@ -50,7 +61,8 @@ export default function Home() {
     const savedGiftsForRecipient = getSavedGiftsForRecipient(formData.name);
     const savedGiftNames = savedGiftsForRecipient.map(gift => gift.name);
     await generateGifts(formData, savedGiftNames);
-  }, [generateGifts, getSavedGiftsForRecipient]);
+    saveRecipientProfile(formData);
+  }, [generateGifts, getSavedGiftsForRecipient, saveRecipientProfile]);
 
   const handleRegenerateGifts = useCallback(async () => {
     if (!giftData) return;
@@ -59,22 +71,38 @@ export default function Home() {
     await regenerateGifts(savedGiftNames);
   }, [giftData, regenerateGifts, getSavedGiftsForRecipient]);
 
+  const handleUseRecipientProfile = useCallback((recipient: SavedRecipient) => {
+    const { id: _id, savedAt: _savedAt, ...formData } = recipient;
+    setPrefilledRecipient(formData);
+    setFormSeed(prev => prev + 1);
+    setViewMode('generator');
+  }, []);
+
+  const detailGiftConfig = selectedGift
+    ? isSavedGift(selectedGift)
+      ? {
+          onSave: undefined,
+          isSaved: true,
+          onRemove: () => removeGift(selectedGift.id),
+        }
+      : {
+          onSave: () => handleSaveGift(selectedGift),
+          isSaved: savedGiftIds.has(selectedGift.id),
+          onRemove: undefined,
+        }
+    : null;
+
+  const formKey = `gift-form-${formSeed}`;
+
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900"></div>
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.15),transparent_50%)]"></div>
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.1),transparent_50%)]"></div>
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(192,132,252,0.1),transparent_50%)]"></div>
-      
-      <div className="fixed top-20 left-10 w-32 h-32 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-20 animate-float animate-neon"></div>
-      <div className="fixed top-40 right-20 w-24 h-24 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full opacity-20 animate-float" style={{ animationDelay: '1s' }}></div>
-      <div className="fixed bottom-20 left-20 w-40 h-40 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
-      
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">
       
       <Header 
         onViewSavedGifts={handleViewSavedGifts}
+        onViewSavedRecipients={handleViewSavedRecipients}
         onGenerateNewGift={handleGenerateNewGift}
+        savedGiftsCount={savedGifts.length}
+        savedRecipientsCount={savedRecipients.length}
       />
       
       <main className="relative container mx-auto px-6 py-12 max-w-7xl">
@@ -82,44 +110,48 @@ export default function Home() {
           !giftData ? (
             <>
               <div className="text-center mb-16">
-                <div className="inline-flex items-center justify-center w-24 h-24 gradient-magic rounded-3xl mb-8 animate-pulse-glow">
+                <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-3xl mb-8">
                   <span className="text-4xl">🎁</span>
                 </div>
                 <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-6 leading-tight">
                   Gift Generator
                 </h1>
-                <p className="text-xl md:text-2xl text-foreground max-w-3xl mx-auto leading-relaxed">
+                <p className="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed">
                   Discover the perfect gift for your friends, colleagues, and loved ones. 
                   Our AI-powered system creates personalized suggestions just for them.
                 </p>
                 <div className="flex flex-wrap justify-center gap-4 mt-8">
-                  <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200 animate-neon">
+                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
                     🤖 AI-Powered
                   </span>
-                  <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200 animate-neon" style={{ animationDelay: '0.5s' }}>
+                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
                     ⚡ Instant Results
                   </span>
-                  <span className="glass-text px-4 py-2 rounded-full text-sm font-medium text-purple-200 animate-neon" style={{ animationDelay: '1s' }}>
+                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
                     🎯 Personalized
                   </span>
                   <button
                     onClick={handleViewSavedGifts}
-                    className="btn-modern gradient-secondary text-white px-6 py-2 rounded-full text-sm font-semibold hover:shadow-lg transition-all duration-300 animate-neon cursor-pointer"
-                    style={{ animationDelay: '1.5s' }}
+                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold hover:shadow-lg transition-all cursor-pointer"
                   >
                     💝 {savedGifts.length > 0 ? `View Saved Gifts (${savedGifts.length})` : 'View Saved Gifts'}
                   </button>
                 </div>
               </div>
-              <GiftForm onSubmit={handleGenerateGifts} isGenerating={isGenerating} />
+              <GiftForm 
+                key={formKey}
+                onSubmit={handleGenerateGifts} 
+                isGenerating={isGenerating} 
+                initialData={prefilledRecipient}
+              />
               {error && (
                 <div className="mt-8 text-center">
-                  <div className="glass rounded-2xl p-6 max-w-2xl mx-auto border border-red-500/30">
+                  <div className="bg-white/10 backdrop-blur-sm border border-red-500/30 rounded-2xl p-6 max-w-2xl mx-auto">
                     <p className="text-red-300 text-lg font-semibold mb-2">❌ Error</p>
                     <p className="text-red-200">{error}</p>
                     <button
                       onClick={() => setError(null)}
-                      className="mt-4 btn-modern gradient-primary text-white px-6 py-2 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
+                      className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:shadow-lg transition-all cursor-pointer"
                     >
                       Dismiss
                     </button>
@@ -145,20 +177,27 @@ export default function Home() {
             onBack={handleBackToGenerator}
             onViewDetail={handleViewGiftDetail}
           />
-        ) : viewMode === 'detail' && selectedGift ? (
+        ) : viewMode === 'recipients' ? (
+          <SavedRecipients
+            recipients={savedRecipients}
+            onBack={handleBackToGenerator}
+            onUseRecipient={handleUseRecipientProfile}
+            onRemoveRecipient={removeRecipient}
+          />
+        ) : viewMode === 'detail' && selectedGift && detailGiftConfig ? (
           <GiftDetail 
             gift={selectedGift}
             recipient={giftData?.recipient}
             onBack={handleBackFromDetail}
-              onSave={selectedGift && 'recipientName' in selectedGift ? undefined : () => handleSaveGift(selectedGift as GiftSuggestion)}
-            isSaved={selectedGift && 'recipientName' in selectedGift ? true : savedGiftIds.has((selectedGift as GiftSuggestion).id)}
-            onRemove={selectedGift && 'recipientName' in selectedGift ? () => removeGift(selectedGift.id) : undefined}
+            onSave={detailGiftConfig.onSave}
+            isSaved={detailGiftConfig.isSaved}
+            onRemove={detailGiftConfig.onRemove}
           />
         ) : null}
       </main>
       
       <footer className="relative mt-20 py-8 text-center">
-        <div className="glass rounded-2xl p-6 max-w-2xl mx-auto">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 max-w-2xl mx-auto">
           <p className="text-purple-200 text-sm">
             Made with ❤️ using Next.js, Tailwind CSS, and Claude 3.5 Sonnet
           </p>

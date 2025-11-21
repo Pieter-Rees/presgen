@@ -33,5 +33,14 @@ export interface GiftData {
   suggestions: GiftSuggestion[];
 }
 
-export type ViewMode = 'generator' | 'saved' | 'detail';
+export interface SavedRecipient extends GiftFormData {
+  id: string;
+  savedAt: Date;
+}
+
+export type ViewMode = 'generator' | 'saved' | 'recipients' | 'detail';
+
+export const isSavedGift = (gift: GiftSuggestion | SavedGift): gift is SavedGift => {
+  return 'recipientName' in gift;
+};
 

@@ -18,18 +18,28 @@ interface GiftFormErrors {
 interface GiftFormProps {
   onSubmit: (data: GiftFormData) => void;
   isGenerating: boolean;
+  initialData?: GiftFormData | null;
 }
 
-const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProps) {
-  const [formData, setFormData] = useState<GiftFormData>({
-    name: '',
-    relationship: '',
-    age: '',
-    interests: [],
-    budget: '',
-    occasion: '',
-    additionalInfo: ''
-  });
+const EMPTY_FORM_DATA: GiftFormData = {
+  name: '',
+  relationship: '',
+  age: '',
+  interests: [],
+  budget: '',
+  occasion: '',
+  additionalInfo: ''
+};
+
+const cloneFormData = (data: GiftFormData): GiftFormData => ({
+  ...data,
+  interests: [...data.interests],
+});
+
+const GiftForm = memo(function GiftForm({ onSubmit, isGenerating, initialData }: GiftFormProps) {
+  const [formData, setFormData] = useState<GiftFormData>(
+    initialData ? cloneFormData(initialData) : cloneFormData(EMPTY_FORM_DATA)
+  );
 
   const [errors, setErrors] = useState<GiftFormErrors>({});
 
@@ -73,9 +83,9 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="glass rounded-3xl shadow-2xl p-8 space-y-8">
+      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-8 space-y-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 gradient-primary rounded-2xl mb-4 animate-pulse-glow">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl mb-4">
             <span className="text-2xl">✨</span>
           </div>
           <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
@@ -95,7 +105,7 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
               type="text"
               value={formData.name}
               onChange={(e) => handleStringChange('name', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-foreground bg-white/5 backdrop-blur-sm transition-all duration-300 ${
+              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
                 errors.name ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
               }`}
               placeholder="Enter their name"
@@ -110,7 +120,7 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
             <select
               value={formData.relationship}
               onChange={(e) => handleStringChange('relationship', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-foreground bg-white/5 backdrop-blur-sm transition-all duration-300 ${
+              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
                 errors.relationship ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
               }`}
             >
@@ -131,7 +141,7 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
             <select
               value={formData.age}
               onChange={(e) => handleStringChange('age', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-foreground bg-white/5 backdrop-blur-sm transition-all duration-300 ${
+              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
                 errors.age ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
               }`}
             >
@@ -218,7 +228,7 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
             <select
               value={formData.occasion}
               onChange={(e) => handleStringChange('occasion', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-foreground bg-white/5 backdrop-blur-sm transition-all duration-300 ${
+              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
                 errors.occasion ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
               }`}
             >
@@ -240,7 +250,7 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
               value={formData.additionalInfo}
               onChange={(e) => handleStringChange('additionalInfo', e.target.value)}
               rows={4}
-              className="w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-foreground bg-white/5 backdrop-blur-sm transition-all duration-300 border-purple-500/30 hover:border-purple-400/50 resize-none"
+              className="w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 border-purple-500/30 hover:border-purple-400/50 resize-none"
               placeholder="Any special preferences, hobbies, or details that might help us find the perfect gift..."
             />
           </div>
@@ -249,7 +259,7 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating }: GiftFormProp
             <button
               type="submit"
               disabled={isGenerating}
-              className="w-full btn-modern bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 px-8 rounded-xl text-lg hover:from-purple-700 hover:to-pink-700 focus:ring-4 focus:ring-purple-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 px-8 rounded-xl text-lg hover:from-purple-700 hover:to-pink-700 focus:ring-4 focus:ring-purple-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isGenerating ? (
                 <div className="flex items-center justify-center space-x-3">
