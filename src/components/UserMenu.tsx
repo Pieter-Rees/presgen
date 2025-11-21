@@ -37,29 +37,29 @@ const UserMenu = ({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onV
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(prev => !prev)}
-        className="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-purple-50 bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer"
+        className="flex items-center space-x-2 px-4 py-2 military-badge text-army-gold text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
       >
         <span className="text-lg">🌟</span>
         <span>My Menu</span>
         {totalItems > 0 && (
-          <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+          <span className="ml-1 ribbon text-xs px-2 py-0.5">
             {totalItems}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 bg-white/10 backdrop-blur-sm rounded-2xl shadow-2xl border border-purple-500/20 p-5 space-y-5">
+        <div className="absolute right-0 mt-3 w-80 military-badge rounded-lg shadow-2xl border-2 border-army-gold p-5 space-y-5">
           <div>
-            <p className="text-xs uppercase tracking-wide text-purple-300 mb-2">Saved Overview</p>
+            <div className="ribbon ribbon-blue text-xs px-3 py-1 mb-3 inline-block">INTELLIGENCE BRIEFING</div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3">
-                <p className="text-sm text-purple-300 mb-1">Saved Gifts</p>
-                <p className="text-2xl font-bold text-purple-100">{savedGiftsCount}</p>
+              <div className="military-badge border border-army-gold rounded-lg p-3">
+                <p className="text-xs text-army-khaki-light mb-1 uppercase tracking-wide font-semibold">Saved Gifts</p>
+                <p className="text-2xl font-black text-army-gold">{savedGiftsCount}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3">
-                <p className="text-sm text-purple-300 mb-1">Saved Recipients</p>
-                <p className="text-2xl font-bold text-purple-100">{savedRecipientsCount}</p>
+              <div className="military-badge border border-army-gold rounded-lg p-3">
+                <p className="text-xs text-army-khaki mb-1 uppercase tracking-wide font-semibold">Saved Recipients</p>
+                <p className="text-2xl font-black text-army-gold">{savedRecipientsCount}</p>
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@ const UserMenu = ({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onV
                 setIsOpen(false);
                 onViewSavedGifts();
               }}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="w-full military-badge text-army-gold py-3 px-4 text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
             >
               💝 View Saved Gifts
             </button>
@@ -79,13 +79,13 @@ const UserMenu = ({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onV
                 setIsOpen(false);
                 onViewSavedRecipients();
               }}
-              className="w-full bg-white/10 backdrop-blur-sm border border-purple-500/30 text-purple-100 py-3 px-4 rounded-xl text-sm font-semibold hover:bg-purple-500/20 transition-all duration-300 cursor-pointer"
+              className="w-full military-badge border-2 border-army-gold text-army-khaki py-3 px-4 text-sm font-bold uppercase tracking-wide hover:bg-army-gold/20 transition-all duration-300 cursor-pointer"
             >
               👥 View Saved Recipients
             </button>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-3 text-xs text-purple-300">
+          <div className="military-badge border border-army-gold rounded-lg p-3 text-xs text-army-khaki-light">
             <p>Use recipient profiles to prefill the generator and avoid repeating details.</p>
           </div>
         </div>

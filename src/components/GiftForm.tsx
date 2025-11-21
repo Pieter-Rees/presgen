@@ -83,80 +83,87 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating, initialData }:
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-8 space-y-8">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl mb-4">
+      <div className="military-badge rounded-lg shadow-2xl p-8 space-y-8">
+        <div className="text-center mb-8 relative">
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4">
+            <div className="ribbon ribbon-blue text-xs px-6 py-1">
+              RECIPIENT INTELLIGENCE FORM
+            </div>
+          </div>
+          <div className="inline-flex items-center justify-center w-16 h-16 military-badge rounded-lg mb-4 mt-4">
             <span className="text-2xl">✨</span>
           </div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
+          <h2 className="text-3xl font-black text-army-gold military-text mb-3 uppercase tracking-tight">
             Tell us about the gift recipient
           </h2>
-          <p className="text-purple-200 text-lg">
-            The more details you provide, the better our AI suggestions will be!
-          </p>
+          <div className="ribbon-decoration inline-block">
+            <p className="text-army-khaki-light text-lg font-semibold">
+              The more details you provide, the better our AI suggestions will be!
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-purple-200">
+            <label className="block text-sm font-bold text-army-gold uppercase tracking-wide">
               Recipient&apos;s Name *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => handleStringChange('name', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
-                errors.name ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
+              className={`w-full px-4 py-4 border-2 rounded-lg focus:ring-2 focus:ring-army-gold focus:border-army-gold text-army-khaki-light bg-army-dark/50 backdrop-blur-sm transition-all duration-300 font-semibold ${
+                errors.name ? 'border-red-600' : 'border-army-gold/50 hover:border-army-gold'
               }`}
               placeholder="Enter their name"
             />
-            {errors.name && <p className="text-red-400 text-sm font-medium">{errors.name}</p>}
+            {errors.name && <p className="text-red-400 text-sm font-bold uppercase">{errors.name}</p>}
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-purple-200">
+            <label className="block text-sm font-bold text-army-gold uppercase tracking-wide">
               Your Relationship *
             </label>
             <select
               value={formData.relationship}
               onChange={(e) => handleStringChange('relationship', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
-                errors.relationship ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
+              className={`w-full px-4 py-4 border-2 rounded-lg focus:ring-2 focus:ring-army-gold focus:border-army-gold text-army-khaki bg-army-dark/50 backdrop-blur-sm transition-all duration-300 font-semibold cursor-pointer ${
+                errors.relationship ? 'border-red-600' : 'border-army-gold/50 hover:border-army-gold'
               }`}
             >
               <option value="">Select relationship</option>
               {relationshipOptions.map(option => (
-                <option key={option} value={option}>
+                <option key={option} value={option} className="bg-army-dark">
                   {capitalizeFirst(option)}
                 </option>
               ))}
             </select>
-            {errors.relationship && <p className="text-red-400 text-sm font-medium">{errors.relationship}</p>}
+            {errors.relationship && <p className="text-red-400 text-sm font-bold uppercase">{errors.relationship}</p>}
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-purple-200">
+            <label className="block text-sm font-bold text-army-gold uppercase tracking-wide">
               Age Range *
             </label>
             <select
               value={formData.age}
               onChange={(e) => handleStringChange('age', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
-                errors.age ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
+              className={`w-full px-4 py-4 border-2 rounded-lg focus:ring-2 focus:ring-army-gold focus:border-army-gold text-army-khaki bg-army-dark/50 backdrop-blur-sm transition-all duration-300 font-semibold cursor-pointer ${
+                errors.age ? 'border-red-600' : 'border-army-gold/50 hover:border-army-gold'
               }`}
             >
               <option value="">Select age range</option>
               {ageOptions.map(option => (
-                <option key={option.value} value={option.value}>
+                <option key={option.value} value={option.value} className="bg-army-dark">
                   {option.label}
                 </option>
               ))}
             </select>
-            {errors.age && <p className="text-red-400 text-sm font-medium">{errors.age}</p>}
+            {errors.age && <p className="text-red-400 text-sm font-bold uppercase">{errors.age}</p>}
           </div>
 
           <div className="space-y-4">
-            <label className="block text-sm font-semibold text-purple-200">
+            <label className="block text-sm font-bold text-army-gold uppercase tracking-wide">
               Interests * (Click to set importance - first click is most important)
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -172,27 +179,27 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating, initialData }:
                       onChange={() => handleInterestToggle(interest)}
                       className="sr-only"
                     />
-                    <div className={`p-4 rounded-xl border-2 transition-all duration-300 group-hover:scale-105 cursor-pointer relative ${
+                    <div className={`p-4 rounded-lg border-2 transition-all duration-300 group-hover:scale-105 cursor-pointer relative military-badge ${
                       isSelected
-                        ? 'border-purple-500 bg-purple-500/20 text-purple-200 shadow-lg'
-                        : 'border-purple-500/30 bg-white/5 hover:border-purple-400/50 hover:bg-purple-500/10'
+                        ? 'border-army-gold bg-army-gold/20 text-army-gold shadow-lg'
+                        : 'border-army-gold/50 bg-army-dark/50 hover:border-army-gold hover:bg-army-gold/10'
                     }`}>
                       {importanceNumber && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                        <div className="absolute -top-2 -right-2 w-7 h-7 ribbon rounded-full flex items-center justify-center text-army-dark text-xs font-black shadow-lg">
                           {importanceNumber}
                         </div>
                       )}
-                      <span className="text-sm font-medium capitalize">{capitalizeFirst(interest)}</span>
+                      <span className="text-sm font-bold capitalize text-army-khaki-light">{capitalizeFirst(interest)}</span>
                     </div>
                   </label>
                 );
               })}
             </div>
-            {errors.interests && <p className="text-red-400 text-sm font-medium">{errors.interests}</p>}
+            {errors.interests && <p className="text-red-400 text-sm font-bold uppercase">{errors.interests}</p>}
           </div>
 
           <div className="space-y-4">
-            <label className="block text-sm font-semibold text-purple-200">
+            <label className="block text-sm font-bold text-army-gold uppercase tracking-wide">
               Budget Range *
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -206,51 +213,51 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating, initialData }:
                     onChange={(e) => handleStringChange('budget', e.target.value)}
                     className="sr-only"
                   />
-                  <div className={`p-6 rounded-xl border-2 transition-all duration-300 group-hover:scale-105 text-center cursor-pointer ${
+                  <div className={`p-6 rounded-lg border-2 transition-all duration-300 group-hover:scale-105 text-center cursor-pointer military-badge ${
                     formData.budget === option.value
-                      ? 'border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-purple-200 shadow-lg'
-                      : 'border-purple-500/30 bg-white/5 hover:border-purple-400/50 hover:bg-purple-500/10'
+                      ? 'border-army-gold bg-army-gold/20 text-army-gold shadow-lg'
+                      : 'border-army-gold/50 bg-army-dark/50 hover:border-army-gold hover:bg-army-gold/10'
                   }`}>
                     <div className="text-2xl mb-2">{option.icon}</div>
-                    <div className="font-semibold">{option.label}</div>
-                    <div className="text-sm text-purple-300">{option.range}</div>
+                    <div className="font-bold text-army-khaki-light">{option.label}</div>
+                    <div className="text-sm text-army-khaki-light/90 font-semibold">{option.range}</div>
                   </div>
                 </label>
               ))}
             </div>
-            {errors.budget && <p className="text-red-400 text-sm font-medium">{errors.budget}</p>}
+            {errors.budget && <p className="text-red-400 text-sm font-bold uppercase">{errors.budget}</p>}
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-purple-200">
+            <label className="block text-sm font-bold text-army-gold uppercase tracking-wide">
               Occasion *
             </label>
             <select
               value={formData.occasion}
               onChange={(e) => handleStringChange('occasion', e.target.value)}
-              className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 ${
-                errors.occasion ? 'border-red-500' : 'border-purple-500/30 hover:border-purple-400/50'
+              className={`w-full px-4 py-4 border-2 rounded-lg focus:ring-2 focus:ring-army-gold focus:border-army-gold text-army-khaki bg-army-dark/50 backdrop-blur-sm transition-all duration-300 font-semibold cursor-pointer ${
+                errors.occasion ? 'border-red-600' : 'border-army-gold/50 hover:border-army-gold'
               }`}
             >
               <option value="">Select occasion</option>
               {occasionOptions.map(option => (
-                <option key={option} value={option}>
+                <option key={option} value={option} className="bg-army-dark">
                   {capitalizeFirst(option)}
                 </option>
               ))}
             </select>
-            {errors.occasion && <p className="text-red-400 text-sm font-medium">{errors.occasion}</p>}
+            {errors.occasion && <p className="text-red-400 text-sm font-bold uppercase">{errors.occasion}</p>}
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-purple-200">
+            <label className="block text-sm font-bold text-army-gold uppercase tracking-wide">
               Additional Information (Optional)
             </label>
             <textarea
               value={formData.additionalInfo}
               onChange={(e) => handleStringChange('additionalInfo', e.target.value)}
               rows={4}
-              className="w-full px-4 py-4 border-2 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 text-white bg-white/5 backdrop-blur-sm transition-all duration-300 border-purple-500/30 hover:border-purple-400/50 resize-none"
+              className="w-full px-4 py-4 border-2 rounded-lg focus:ring-2 focus:ring-army-gold focus:border-army-gold text-army-khaki bg-army-dark/50 backdrop-blur-sm transition-all duration-300 border-army-gold/50 hover:border-army-gold resize-none font-semibold"
               placeholder="Any special preferences, hobbies, or details that might help us find the perfect gift..."
             />
           </div>
@@ -259,11 +266,11 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating, initialData }:
             <button
               type="submit"
               disabled={isGenerating}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 px-8 rounded-xl text-lg hover:from-purple-700 hover:to-pink-700 focus:ring-4 focus:ring-purple-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full military-badge text-army-gold font-black py-4 px-8 rounded-lg text-lg uppercase tracking-wide hover:scale-105 focus:ring-2 focus:ring-army-gold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
             >
               {isGenerating ? (
                 <div className="flex items-center justify-center space-x-3">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-army-gold"></div>
                   <span>Generating Suggestions...</span>
                 </div>
               ) : (

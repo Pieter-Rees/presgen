@@ -25,22 +25,27 @@ const GiftDetail = memo(function GiftDetail({
   const priceLabel = useMemo(() => getPriceLabel(gift.price, recipient?.budget), [gift.price, recipient?.budget]);
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-3xl mb-6">
+      <div className="text-center mb-12 relative">
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4">
+          <div className="ribbon ribbon-red text-xs px-8 py-1">
+            DETAILED INTELLIGENCE REPORT
+          </div>
+        </div>
+        <div className="inline-flex items-center justify-center w-24 h-24 military-badge rounded-lg mb-6 mt-6">
           <span className="text-4xl">{getCategoryIcon(gift.category)}</span>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl md:text-5xl font-black text-army-gold military-text mb-4 uppercase tracking-tight">
           {gift.name}
         </h1>
         <div className="flex flex-wrap justify-center gap-3 mb-6">
-          <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
+          <span className="ribbon text-xs px-4 py-2">
             {gift.category}
           </span>
-          <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
+          <span className="ribbon ribbon-blue text-xs px-4 py-2">
             {priceLabel}
           </span>
           {'savedAt' in gift && gift.savedAt && (
-            <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
+            <span className="ribbon ribbon-green text-xs px-4 py-2">
               Saved {formatDate(gift.savedAt, 'long')}
             </span>
           )}
@@ -48,7 +53,7 @@ const GiftDetail = memo(function GiftDetail({
         
         <button
           onClick={onBack}
-          className="bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl text-lg hover:shadow-xl transition-all duration-300 mb-8 cursor-pointer"
+          className="military-badge text-army-gold font-black py-3 px-6 rounded-lg text-lg uppercase tracking-wide hover:scale-105 transition-all duration-300 mb-8 cursor-pointer"
         >
           ← Back
         </button>
@@ -56,71 +61,70 @@ const GiftDetail = memo(function GiftDetail({
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-8">
+          <div className="military-badge rounded-lg shadow-2xl p-8">
             <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mr-4">
+              <div className="w-12 h-12 military-badge rounded-lg flex items-center justify-center mr-4">
                 <span className="text-xl">📦</span>
               </div>
-              <h2 className="text-2xl font-bold text-purple-200">Gift Details</h2>
+              <h2 className="text-2xl font-black text-army-gold military-text uppercase tracking-tight">Gift Details</h2>
             </div>
-            <p className="text-purple-300 text-lg leading-relaxed mb-6">
+            <p className="text-army-khaki-light text-lg leading-relaxed mb-6 font-semibold">
               {gift.description}
             </p>
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6">
-              <h3 className="font-semibold text-purple-200 mb-3 text-lg">Why This Gift is Perfect</h3>
-              <p className="text-purple-300 leading-relaxed">
+            <div className="military-badge border border-army-gold rounded-lg p-6">
+              <div className="ribbon ribbon-blue text-xs px-3 py-1 mb-3 inline-block">WHY THIS GIFT IS PERFECT</div>
+              <p className="text-army-khaki-light leading-relaxed font-semibold">
                 {gift.reason}
               </p>
             </div>
           </div>
 
           {recipient && (
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-8">
+            <div className="military-badge rounded-lg shadow-2xl p-8">
               <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4">
+                <div className="w-12 h-12 military-badge rounded-lg flex items-center justify-center mr-4">
                   <span className="text-xl">👤</span>
                 </div>
-                <h2 className="text-2xl font-bold text-purple-200">About {recipient.name}</h2>
+                <h2 className="text-2xl font-black text-army-gold military-text uppercase tracking-tight">About {recipient.name}</h2>
               </div>
               
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold text-purple-200 mb-3">Basic Info</h3>
+                  <div className="ribbon ribbon-blue text-xs px-3 py-1 mb-3 inline-block">BASIC INFO</div>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-purple-300">Relationship:</span>
-                      <span className="text-purple-200 font-medium">{recipient.relationship}</span>
+                      <span className="text-army-khaki-light font-semibold">Relationship:</span>
+                      <span className="text-army-gold font-bold uppercase">{recipient.relationship}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-purple-300">Age Range:</span>
-                      <span className="text-purple-200 font-medium">{recipient.age}</span>
+                      <span className="text-army-khaki font-semibold">Age Range:</span>
+                      <span className="text-army-gold font-bold">{recipient.age}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-purple-300">Budget:</span>
-                      <span className="text-purple-200 font-medium">{recipient.budget}</span>
+                      <span className="text-army-khaki font-semibold">Budget:</span>
+                      <span className="text-army-gold font-bold">{recipient.budget}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-purple-300">Occasion:</span>
-                      <span className="text-purple-200 font-medium">{recipient.occasion}</span>
+                      <span className="text-army-khaki font-semibold">Occasion:</span>
+                      <span className="text-army-gold font-bold uppercase">{recipient.occasion}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="font-semibold text-purple-200 mb-3">Interests</h3>
+                  <div className="ribbon ribbon-green text-xs px-3 py-1 mb-3 inline-block">INTERESTS</div>
                   <div className="flex flex-wrap gap-2">
                     {recipient.interests.map((interest, index) => (
-                      <span key={interest} className="bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-sm font-medium text-purple-200 relative">
-                        <span className="mr-1.5 text-purple-400 font-bold">#{index + 1}</span>
-                        {capitalizeFirst(interest)}
+                      <span key={interest} className="ribbon text-xs px-3 py-1">
+                        #{index + 1} {capitalizeFirst(interest)}
                       </span>
                     ))}
                   </div>
                   
                   {recipient.additionalInfo && (
                     <div className="mt-4">
-                      <h3 className="font-semibold text-purple-200 mb-2">Additional Notes</h3>
-                      <p className="text-purple-300 text-sm leading-relaxed">{recipient.additionalInfo}</p>
+                      <div className="ribbon ribbon-blue text-xs px-3 py-1 mb-2 inline-block">ADDITIONAL NOTES</div>
+                      <p className="text-army-khaki-light text-sm leading-relaxed font-semibold">{recipient.additionalInfo}</p>
                     </div>
                   )}
                 </div>
@@ -130,12 +134,13 @@ const GiftDetail = memo(function GiftDetail({
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-6">
+          <div className="military-badge rounded-lg shadow-2xl p-6">
             <div className="text-center mb-6">
-              <div className="text-3xl font-bold text-purple-100 mb-2">
+              <div className="ribbon text-xs px-4 py-1 mb-3 inline-block">PRICE RANGE</div>
+              <div className="text-3xl font-black text-army-gold mb-2">
                 {priceLabel}
               </div>
-              <p className="text-purple-300 text-sm">Estimated Price Range</p>
+              <p className="text-army-khaki-light text-sm font-semibold">Estimated Price Range</p>
             </div>
             
             <div className="space-y-3">
@@ -143,10 +148,10 @@ const GiftDetail = memo(function GiftDetail({
                 <button
                   onClick={onSave}
                   disabled={isSaved}
-                  className={`w-full py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                  className={`w-full py-3 px-4 rounded-lg text-sm font-bold uppercase tracking-wide transition-all duration-300 cursor-pointer ${
                     isSaved
-                      ? 'bg-white/10 backdrop-blur-sm border border-white/20 text-green-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg'
+                      ? 'military-badge border-2 border-green-500 text-green-400 cursor-not-allowed'
+                      : 'military-badge text-army-gold hover:scale-105'
                   }`}
                 >
                   {isSaved ? '✓ Saved to Collection' : '💝 Save to Collection'}
@@ -156,7 +161,7 @@ const GiftDetail = memo(function GiftDetail({
               {onRemove && (
                 <button
                   onClick={onRemove}
-                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-red-400 py-3 px-4 rounded-xl text-sm font-semibold hover:bg-red-500/20 transition-all duration-300 cursor-pointer"
+                  className="w-full military-badge border-2 border-red-600 text-red-400 py-3 px-4 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-red-600/20 transition-all duration-300 cursor-pointer"
                 >
                   🗑️ Remove from Collection
                 </button>
@@ -164,41 +169,41 @@ const GiftDetail = memo(function GiftDetail({
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-6">
-            <h3 className="font-semibold text-purple-200 mb-4">Gift Features</h3>
+          <div className="military-badge rounded-lg shadow-2xl p-6">
+            <div className="ribbon ribbon-blue text-xs px-3 py-1 mb-4 inline-block">GIFT FEATURES</div>
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                  <span className="text-sm">✓</span>
+                <div className="w-8 h-8 military-badge rounded-lg flex items-center justify-center">
+                  <span className="text-sm text-army-gold font-bold">✓</span>
                 </div>
-                <span className="text-purple-300 text-sm">Personalized for recipient</span>
+                <span className="text-army-khaki-light text-sm font-semibold">Personalized for recipient</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                  <span className="text-sm">✓</span>
+                <div className="w-8 h-8 military-badge rounded-lg flex items-center justify-center">
+                  <span className="text-sm text-army-gold font-bold">✓</span>
                 </div>
-                <span className="text-purple-300 text-sm">Within budget range</span>
+                <span className="text-army-khaki text-sm font-semibold">Within budget range</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                  <span className="text-sm">✓</span>
+                <div className="w-8 h-8 military-badge rounded-lg flex items-center justify-center">
+                  <span className="text-sm text-army-gold font-bold">✓</span>
                 </div>
-                <span className="text-purple-300 text-sm">Matches interests</span>
+                <span className="text-army-khaki text-sm font-semibold">Matches interests</span>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
-                  <span className="text-sm">✓</span>
+                <div className="w-8 h-8 military-badge rounded-lg flex items-center justify-center">
+                  <span className="text-sm text-army-gold font-bold">✓</span>
                 </div>
-                <span className="text-purple-300 text-sm">Perfect for occasion</span>
+                <span className="text-army-khaki text-sm font-semibold">Perfect for occasion</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-6">
+          <div className="military-badge rounded-lg shadow-2xl p-6">
             <div className="text-center">
               <div className="text-4xl mb-3">{getCategoryIcon(gift.category)}</div>
-              <h3 className="font-semibold text-purple-200 mb-2">{gift.category}</h3>
-              <p className="text-purple-300 text-sm">
+              <div className="ribbon text-xs px-3 py-1 mb-2 inline-block">{gift.category}</div>
+              <p className="text-army-khaki-light text-sm font-semibold">
                 This gift falls into the {gift.category.toLowerCase()} category, 
                 making it a great choice for someone with related interests.
               </p>
@@ -208,15 +213,16 @@ const GiftDetail = memo(function GiftDetail({
       </div>
 
       <div className="mt-12 text-center">
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 max-w-2xl mx-auto">
-          <p className="text-purple-200 text-sm leading-relaxed mb-4">
+        <div className="military-badge rounded-lg p-6 max-w-2xl mx-auto">
+          <div className="ribbon ribbon-green text-xs px-3 py-1 mb-4 inline-block">NEXT STEPS</div>
+          <p className="text-army-khaki-light text-sm leading-relaxed mb-4 font-semibold">
             Ready to make this gift a reality? You can now search for this item online or visit your favorite stores to purchase it.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer">
+            <button className="military-badge text-army-gold px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer">
               🔍 Search Online
             </button>
-            <button className="bg-white/10 backdrop-blur-sm border-2 border-purple-500 text-purple-200 px-6 py-2 rounded-xl text-sm font-semibold hover:bg-purple-500/20 transition-all duration-300 cursor-pointer">
+            <button className="military-badge border-2 border-army-gold text-army-khaki px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-army-gold/20 transition-all duration-300 cursor-pointer">
               📝 Add to Wishlist
             </button>
           </div>

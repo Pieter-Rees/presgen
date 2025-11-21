@@ -1,1 +1,137 @@
 @import "tailwindcss";
+
+@layer utilities {
+  .ribbon {
+    position: relative;
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, #daa520 0%, #cd7f32 50%, #daa520 100%);
+    color: #1a1f0f;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .ribbon::before,
+  .ribbon::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+
+  .ribbon::before {
+    left: 0;
+    border-width: 0 0 8px 8px;
+    border-color: transparent transparent #8b4513 transparent;
+  }
+
+  .ribbon::after {
+    right: 0;
+    border-width: 0 8px 8px 0;
+    border-color: transparent #8b4513 transparent transparent;
+  }
+
+  .ribbon-red {
+    background: linear-gradient(135deg, #8b0000 0%, #dc143c 50%, #8b0000 100%);
+    color: white;
+  }
+
+  .ribbon-blue {
+    background: linear-gradient(135deg, #00008b 0%, #4169e1 50%, #00008b 100%);
+    color: white;
+  }
+
+  .ribbon-green {
+    background: linear-gradient(135deg, #2d3a1f 0%, #556b2f 50%, #2d3a1f 100%);
+    color: #daa520;
+  }
+
+  .military-badge {
+    position: relative;
+    background: linear-gradient(135deg, rgba(85, 107, 47, 0.95) 0%, rgba(45, 58, 31, 0.95) 100%);
+    border: 2px solid #daa520;
+    box-shadow: 
+      inset 0 2px 4px rgba(218, 165, 32, 0.3),
+      0 4px 8px rgba(0, 0, 0, 0.4);
+    color: #f5deb3 !important;
+  }
+
+  .military-badge *:not(input):not(select):not(textarea):not(button) {
+    color: #f5deb3 !important;
+  }
+
+  .military-badge input,
+  .military-badge select,
+  .military-badge textarea {
+    color: #f5deb3 !important;
+  }
+
+  .military-badge button {
+    color: #daa520 !important;
+  }
+
+  .military-badge::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #daa520, #cd7f32, #daa520);
+    z-index: -1;
+    border-radius: inherit;
+  }
+
+  .camo-bg {
+    background: 
+      repeating-linear-gradient(
+        45deg,
+        #1a1f0f 0px,
+        #1a1f0f 10px,
+        #3d4a2f 10px,
+        #3d4a2f 20px,
+        #5a6b4a 20px,
+        #5a6b4a 30px
+      );
+    background-size: 40px 40px;
+  }
+
+  .military-text {
+    text-shadow: 
+      2px 2px 0px #1a1f0f,
+      1px 1px 0px #2d3a1f;
+  }
+
+  .ribbon-decoration {
+    position: relative;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .ribbon-decoration::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #daa520 0%, #cd7f32 50%, #daa520 100%);
+    box-shadow: 2px 0 4px rgba(218, 165, 32, 0.5);
+  }
+
+  .ribbon-decoration::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #daa520 0%, #cd7f32 50%, #daa520 100%);
+    box-shadow: -2px 0 4px rgba(218, 165, 32, 0.5);
+  }
+}

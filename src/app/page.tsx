@@ -95,7 +95,9 @@ export default function Home() {
   const formKey = `gift-form-${formSeed}`;
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">
+    <div className="min-h-screen relative overflow-hidden camo-bg">
+      <div className="absolute inset-0 bg-gradient-to-br from-army-dark/60 via-army-green/40 to-camo-dark/60"></div>
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-army-gold to-transparent"></div>
       
       <Header 
         onViewSavedGifts={handleViewSavedGifts}
@@ -109,30 +111,37 @@ export default function Home() {
         {viewMode === 'generator' ? (
           !giftData ? (
             <>
-              <div className="text-center mb-16">
-                <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-3xl mb-8">
+              <div className="text-center mb-16 relative">
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4">
+                  <div className="ribbon ribbon-red text-xs px-8 py-1">
+                    OPERATION GIFT RECON
+                  </div>
+                </div>
+                <div className="inline-flex items-center justify-center w-24 h-24 military-badge rounded-lg mb-8 mt-6">
                   <span className="text-4xl">🎁</span>
                 </div>
-                <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-6 leading-tight">
+                <h1 className="text-5xl md:text-7xl font-black text-army-gold military-text mb-6 leading-tight uppercase tracking-tight">
                   Gift Generator
                 </h1>
-                <p className="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed">
-                  Discover the perfect gift for your friends, colleagues, and loved ones. 
-                  Our AI-powered system creates personalized suggestions just for them.
-                </p>
+                <div className="ribbon-decoration inline-block mb-6">
+                  <p className="text-xl md:text-2xl text-army-khaki max-w-3xl mx-auto leading-relaxed font-semibold">
+                    Discover the perfect gift for your friends, colleagues, and loved ones. 
+                    Our AI-powered system creates personalized suggestions just for them.
+                  </p>
+                </div>
                 <div className="flex flex-wrap justify-center gap-4 mt-8">
-                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
+                  <span className="ribbon text-xs px-4 py-2">
                     🤖 AI-Powered
                   </span>
-                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
+                  <span className="ribbon ribbon-blue text-xs px-4 py-2">
                     ⚡ Instant Results
                   </span>
-                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-sm font-medium text-purple-200">
+                  <span className="ribbon ribbon-green text-xs px-4 py-2">
                     🎯 Personalized
                   </span>
                   <button
                     onClick={handleViewSavedGifts}
-                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-semibold hover:shadow-lg transition-all cursor-pointer"
+                    className="military-badge text-army-gold px-6 py-2 text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all cursor-pointer"
                   >
                     💝 {savedGifts.length > 0 ? `View Saved Gifts (${savedGifts.length})` : 'View Saved Gifts'}
                   </button>
@@ -146,12 +155,13 @@ export default function Home() {
               />
               {error && (
                 <div className="mt-8 text-center">
-                  <div className="bg-white/10 backdrop-blur-sm border border-red-500/30 rounded-2xl p-6 max-w-2xl mx-auto">
-                    <p className="text-red-300 text-lg font-semibold mb-2">❌ Error</p>
-                    <p className="text-red-200">{error}</p>
+                  <div className="military-badge border-2 border-red-600 rounded-lg p-6 max-w-2xl mx-auto bg-red-900/30">
+                    <div className="ribbon ribbon-red text-xs px-4 py-1 mb-4 inline-block">⚠️ ALERT</div>
+                    <p className="text-red-200 text-lg font-bold mb-2 uppercase">Error</p>
+                    <p className="text-red-100">{error}</p>
                     <button
                       onClick={() => setError(null)}
-                      className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-xl text-sm font-semibold hover:shadow-lg transition-all cursor-pointer"
+                      className="mt-4 military-badge text-army-gold px-6 py-2 text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all cursor-pointer"
                     >
                       Dismiss
                     </button>
@@ -197,8 +207,9 @@ export default function Home() {
       </main>
       
       <footer className="relative mt-20 py-8 text-center">
-        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 max-w-2xl mx-auto">
-          <p className="text-purple-200 text-sm">
+        <div className="military-badge rounded-lg p-6 max-w-2xl mx-auto">
+          <div className="ribbon text-xs px-4 py-1 mb-3 inline-block">INTELLIGENCE REPORT</div>
+          <p className="text-army-khaki text-sm font-semibold">
             Made with ❤️ using Next.js, Tailwind CSS, and Claude 3.5 Sonnet
           </p>
         </div>

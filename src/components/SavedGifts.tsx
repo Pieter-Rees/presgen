@@ -48,36 +48,42 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-3xl mb-6">
+      <div className="text-center mb-12 relative">
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4">
+          <div className="ribbon ribbon-red text-xs px-8 py-1">
+            GIFT ARSENAL
+          </div>
+        </div>
+        <div className="inline-flex items-center justify-center w-20 h-20 military-badge rounded-lg mb-6 mt-6">
           <span className="text-3xl">💝</span>
         </div>
-        <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-6">
+        <h2 className="text-4xl font-black text-army-gold military-text mb-6 uppercase tracking-tight">
           Saved Gifts
         </h2>
-        <p className="text-purple-200 text-lg mb-8">
+        <p className="text-army-khaki-light text-lg mb-8 font-semibold">
           Your personalized gift collection ({savedGifts.length} items)
         </p>
         
         <button
           onClick={onBack}
-          className="bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl text-lg hover:shadow-xl transition-all duration-300 mb-8 cursor-pointer"
+          className="military-badge text-army-gold font-black py-3 px-6 rounded-lg text-lg uppercase tracking-wide hover:scale-105 transition-all duration-300 mb-8 cursor-pointer"
         >
           ← Back to Generator
         </button>
       </div>
 
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl shadow-2xl p-6 mb-8">
+      <div className="military-badge rounded-lg shadow-2xl p-6 mb-8">
+        <div className="ribbon ribbon-blue text-xs px-3 py-1 mb-4 inline-block">FILTER & SORT</div>
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex items-center space-x-4">
-            <label className="text-sm font-semibold text-purple-200">Filter by:</label>
+            <label className="text-sm font-bold text-army-gold uppercase tracking-wide">Filter by:</label>
             <select
               value={filterCategory}
               onChange={(e) => handleFilterChange(e.target.value)}
-              className="px-4 py-2 border-2 border-purple-500/30 rounded-xl bg-white/5 backdrop-blur-sm text-purple-200 focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 cursor-pointer"
+              className="px-4 py-2 border-2 border-army-gold/50 rounded-lg bg-army-dark/50 backdrop-blur-sm text-army-khaki-light focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
             >
               {categories.map(category => (
-                <option key={category} value={category}>
+                <option key={category} value={category} className="bg-army-dark">
                   {category === 'all' ? 'All Categories' : category}
                 </option>
               ))}
@@ -85,11 +91,11 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
           </div>
           
           <div className="flex items-center space-x-4">
-            <label className="text-sm font-semibold text-purple-200">Sort by:</label>
+            <label className="text-sm font-bold text-army-gold uppercase tracking-wide">Sort by:</label>
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value as 'date' | 'name' | 'price')}
-              className="px-4 py-2 border-2 border-purple-500/30 rounded-xl bg-white/5 backdrop-blur-sm text-purple-200 focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 cursor-pointer"
+              className="px-4 py-2 border-2 border-army-gold/50 rounded-lg bg-army-dark/50 backdrop-blur-sm text-army-khaki-light focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
             >
               <option value="date">Date Saved</option>
               <option value="name">Name</option>
@@ -101,13 +107,13 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
 
       {filteredGifts.length === 0 ? (
         <div className="text-center py-16">
-          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-pink-600 to-purple-600 rounded-3xl mb-6">
+          <div className="inline-flex items-center justify-center w-24 h-24 military-badge rounded-lg mb-6">
             <span className="text-3xl">📦</span>
           </div>
-          <h4 className="text-xl font-semibold text-purple-200 mb-2">
+          <h4 className="text-xl font-black text-army-gold military-text mb-2 uppercase">
             {savedGifts.length === 0 ? 'No saved gifts yet' : 'No gifts match your filter'}
           </h4>
-          <p className="text-purple-300">
+          <p className="text-army-khaki-light font-semibold">
             {savedGifts.length === 0 
               ? 'Start generating gifts and save your favorites!' 
               : 'Try adjusting your filters to see more gifts'
@@ -119,35 +125,36 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
           {filteredGifts.map((gift) => (
             <div 
               key={gift.id} 
-              className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-lg hover:shadow-2xl transition-shadow"
+              className="military-badge p-6 rounded-lg hover:shadow-2xl transition-all hover:scale-105"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="text-3xl">{getCategoryIcon(gift.category)}</div>
                 <div className="text-right">
-                  <span className="bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full text-xs font-semibold text-purple-200">
+                  <span className="ribbon text-xs px-3 py-1">
                     {gift.category}
                   </span>
-                  <div className="text-lg font-bold text-purple-100 mt-2">
+                  <div className="text-lg font-black text-army-gold mt-2">
                     {getPriceLabel(gift.price)}
                   </div>
                 </div>
               </div>
               
-              <h4 className="text-lg font-bold text-purple-200 mb-3 leading-tight">
+              <h4 className="text-lg font-black text-army-gold military-text mb-3 leading-tight uppercase">
                 {gift.name}
               </h4>
               
-              <p className="text-purple-300 mb-4 text-sm leading-relaxed">
+              <p className="text-army-khaki-light mb-4 text-sm leading-relaxed font-semibold">
                 {gift.description}
               </p>
               
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-3 mb-4">
-                <p className="text-sm text-purple-200 leading-relaxed">
-                  <span className="font-semibold">Why this gift:</span> {gift.reason}
+              <div className="military-badge border border-army-gold rounded-lg p-3 mb-4">
+                <div className="ribbon ribbon-blue text-xs px-2 py-0.5 mb-2 inline-block">WHY THIS GIFT</div>
+                <p className="text-sm text-army-khaki-light leading-relaxed font-semibold">
+                  {gift.reason}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-purple-300 mb-4">
+              <div className="flex items-center justify-between text-xs text-army-khaki-light mb-4 font-semibold">
                 <span>For: {gift.recipientName}</span>
                 <span>{formatDate(gift.savedAt)}</span>
               </div>
@@ -155,13 +162,13 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
               <div className="flex gap-3">
                 <button 
                   onClick={() => onViewDetail(gift)}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-3 rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="flex-1 military-badge text-army-gold py-2 px-3 rounded-lg text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
                 >
                   View Details
                 </button>
                 <button 
                   onClick={() => onRemoveGift(gift.id)}
-                  className="bg-white/10 backdrop-blur-sm border border-white/20 text-red-400 py-2 px-3 rounded-xl text-sm font-semibold hover:bg-red-500/20 transition-all duration-300 cursor-pointer"
+                  className="military-badge border-2 border-red-600 text-red-400 py-2 px-3 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-red-600/20 transition-all duration-300 cursor-pointer"
                 >
                   Remove
                 </button>
