@@ -98,6 +98,7 @@ npm run build
 |----------|-------------|----------|
 | `OPENROUTER_API_KEY` | Your OpenRouter API key (server-side only, never exposed to client) | Yes |
 | `NEXT_PUBLIC_SITE_URL` | Your site URL | No |
+| `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID` | Your Google AdSense publisher ID (e.g., `ca-pub-xxxxxxxxxxxxxxxx`) | No |
 
 ## API Configuration
 

@@ -4,6 +4,7 @@ import { memo } from 'react';
 import type { GiftData, GiftSuggestion } from '@/types/gift';
 import { getBudgetLabel, capitalizeFirst, formatAgeRange } from '@/utils/formatting';
 import GiftCard from '@/components/ui/GiftCard';
+import AdSense from '@/components/AdSense';
 
 interface GiftSuggestionsProps {
   giftData: GiftData;
@@ -117,19 +118,48 @@ const GiftSuggestions = memo(function GiftSuggestions({
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {suggestions.map((suggestion) => (
-              <GiftCard
-                key={suggestion.id}
-                gift={suggestion}
-                budget={recipient.budget}
-                onViewDetail={() => onViewDetail(suggestion)}
-                onSave={() => onSaveGift(suggestion)}
-                isSaved={savedGiftIds.has(suggestion.id)}
-                size="md"
+          <>
+            <div className="mb-8 flex justify-center">
+              <AdSense 
+                adSlot="1234567890"
+                adFormat="horizontal"
+                className="w-full max-w-728px"
+                style={{ display: 'block', minHeight: '90px' }}
               />
-            ))}
-          </div>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {suggestions.map((suggestion, index) => (
+                <div key={suggestion.id}>
+                  <GiftCard
+                    gift={suggestion}
+                    budget={recipient.budget}
+                    onViewDetail={() => onViewDetail(suggestion)}
+                    onSave={() => onSaveGift(suggestion)}
+                    isSaved={savedGiftIds.has(suggestion.id)}
+                    size="md"
+                  />
+                  {index === 2 && (
+                    <div className="mt-8 flex justify-center">
+                      <AdSense 
+                        adSlot="1234567891"
+                        adFormat="rectangle"
+                        className="w-full max-w-300px"
+                        style={{ display: 'block', minHeight: '250px' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 flex justify-center">
+              <AdSense 
+                adSlot="1234567892"
+                adFormat="horizontal"
+                className="w-full max-w-728px"
+                style={{ display: 'block', minHeight: '90px' }}
+              />
+            </div>
+          </>
         )}
       </div>
 
