@@ -24,7 +24,7 @@ export default function Home() {
   const [prefilledRecipient, setPrefilledRecipient] = useState<GiftFormData | null>(null);
   const [formSeed, setFormSeed] = useState(0);
 
-  const { savedGifts, savedGiftIds, saveGift, removeGift, getSavedGiftsForRecipient } = useSavedGifts();
+  const { savedGifts, savedGiftIds, saveGift, removeGift, getSavedGiftsForRecipient, clearAllGifts } = useSavedGifts();
   const { savedRecipients, saveRecipientProfile, removeRecipient } = useSavedRecipients();
   const { giftData, isGenerating, error, generateGifts, regenerateGifts, reset, setError } = useGiftGeneration();
 
@@ -141,6 +141,7 @@ export default function Home() {
                 onRemoveGift={removeGift}
                 onBack={handleBackToGenerator}
                 onViewDetail={handleViewGiftDetail}
+                onClearAllGifts={clearAllGifts}
               />
             ) : viewMode === 'recipients' ? (
               <SavedRecipients

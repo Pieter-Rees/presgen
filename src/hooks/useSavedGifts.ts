@@ -95,12 +95,18 @@ export function useSavedGifts() {
     return savedGifts.filter(gift => gift.recipientName === recipientName);
   }, [savedGifts]);
 
+  const clearAllGifts = useCallback(() => {
+    setSavedGifts([]);
+    removeStorageItem('presgen-saved-gifts');
+  }, []);
+
   return {
     savedGifts,
     savedGiftIds,
     saveGift,
     removeGift,
-    getSavedGiftsForRecipient
+    getSavedGiftsForRecipient,
+    clearAllGifts
   };
 }
 

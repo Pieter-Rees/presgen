@@ -150,7 +150,7 @@ const GiftDetail = memo(function GiftDetail({
                   disabled={isSaved}
                   className={`w-full py-3 px-4 rounded-lg text-sm font-bold uppercase tracking-wide transition-all duration-300 cursor-pointer ${
                     isSaved
-                      ? 'military-badge border-2 border-green-500 text-green-400 cursor-not-allowed'
+                      ? 'military-badge border-2 border-green-500 text-green-400 cursor-not-allowed disabled:hover:scale-100'
                       : 'military-badge text-army-gold hover:scale-105'
                   }`}
                 >

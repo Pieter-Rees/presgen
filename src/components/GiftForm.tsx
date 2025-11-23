@@ -285,7 +285,7 @@ const GiftForm = memo(function GiftForm({ onSubmit, isGenerating, initialData }:
             <button
               type="submit"
               disabled={isGenerating || isSubmitting}
-              className="w-full bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg text-base hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg text-base hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {(isGenerating || isSubmitting) ? (
                 <div className="flex items-center justify-center gap-3">

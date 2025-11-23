@@ -9,9 +9,10 @@ interface SavedGiftsProps {
   onRemoveGift: (id: string) => void;
   onBack: () => void;
   onViewDetail: (gift: SavedGift) => void;
+  onClearAllGifts: () => void;
 }
 
-const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, onViewDetail }: SavedGiftsProps) {
+const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, onViewDetail, onClearAllGifts }: SavedGiftsProps) {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'price'>('date');
 
@@ -63,12 +64,22 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
           Your personalized gift collection ({savedGifts.length} items)
         </p>
         
-        <button
-          onClick={onBack}
-          className="military-badge text-army-gold font-black py-3 px-6 rounded-lg text-lg uppercase tracking-wide hover:scale-105 transition-all duration-300 mb-8 cursor-pointer"
-        >
-          ← Back to Generator
-        </button>
+        <div className="flex gap-4 justify-center items-center mb-8">
+          <button
+            onClick={onBack}
+            className="military-badge text-army-gold font-black py-3 px-6 rounded-lg text-lg uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
+          >
+            ← Back to Generator
+          </button>
+          {savedGifts.length > 0 && (
+            <button
+              onClick={onClearAllGifts}
+              className="military-badge border-2 border-red-600 text-red-400 font-black py-3 px-6 rounded-lg text-lg uppercase tracking-wide hover:bg-red-600/20 transition-all duration-300 cursor-pointer"
+            >
+              Clear All Gifts
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="military-badge rounded-lg shadow-2xl p-6 mb-8">

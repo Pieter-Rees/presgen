@@ -39,7 +39,7 @@ const Header = memo(function Header({
           <div className="flex items-center gap-4">
             <button 
               onClick={onGenerateNewGift}
-              className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+              className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all duration-300 cursor-pointer"
             >
               <span>✨</span>
               <span>Generate New Gift</span>
