@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { SavedGift, GiftSuggestion } from '@/types/gift';
 import { getPriceLabel } from '@/utils/formatting';
-
-const STORAGE_KEY = 'presgen-saved-gifts';
+import { getStorageItem, setStorageItem, removeStorageItem } from '@/lib/storage';
 
 interface StoredSavedGift extends Omit<SavedGift, 'savedAt'> {
   savedAt: string;
@@ -21,46 +20,46 @@ const extractOriginalId = (id: string): number | null => {
   return isNaN(num) ? null : num;
 };
 
+function initializeSavedGifts(): SavedGift[] {
+  const parsed = getStorageItem<StoredSavedGift[]>('presgen-saved-gifts');
+  if (!parsed || !Array.isArray(parsed)) {
+    if (parsed && !Array.isArray(parsed)) {
+      removeStorageItem('presgen-saved-gifts');
+    }
+    return [];
+  }
+
+  return parsed.map(sanitizeSavedGift).filter(gift => {
+    const originalId = extractOriginalId(gift.id);
+    return originalId !== null && !isNaN(gift.savedAt.getTime());
+  });
+}
+
 export function useSavedGifts() {
   const [savedGifts, setSavedGifts] = useState<SavedGift[]>([]);
-  const [savedGiftIds, setSavedGiftIds] = useState<Set<number>>(new Set());
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(saved) as StoredSavedGift[];
-      if (!Array.isArray(parsed)) {
-        throw new Error('Invalid saved gifts format');
-      }
-
-      const gifts = parsed.map(sanitizeSavedGift).filter(gift => {
-        const originalId = extractOriginalId(gift.id);
-        return originalId !== null && !isNaN(gift.savedAt.getTime());
-      });
-      
-      setSavedGifts(gifts);
-      const validIds = gifts.map(gift => extractOriginalId(gift.id)).filter((id): id is number => id !== null);
-      setSavedGiftIds(new Set(validIds));
-    } catch (error) {
-      console.error('Failed to parse saved gifts from storage', error);
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    const initialized = initializeSavedGifts();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSavedGifts(initialized);
+    setIsHydrated(true);
   }, []);
 
+  const savedGiftIds = useMemo(() => {
+    const validIds = savedGifts.map(gift => extractOriginalId(gift.id)).filter((id): id is number => id !== null);
+    return new Set(validIds);
+  }, [savedGifts]);
+
   useEffect(() => {
+    if (!isHydrated) return;
+    
     if (savedGifts.length === 0) {
-      localStorage.removeItem(STORAGE_KEY);
-      setSavedGiftIds(new Set());
+      removeStorageItem('presgen-saved-gifts');
       return;
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedGifts));
-    const validIds = savedGifts.map(gift => extractOriginalId(gift.id)).filter((id): id is number => id !== null);
-    setSavedGiftIds(new Set(validIds));
-  }, [savedGifts]);
+    setStorageItem('presgen-saved-gifts', savedGifts);
+  }, [savedGifts, isHydrated]);
 
   const saveGift = useCallback((gift: GiftSuggestion, recipientName: string, recipientBudget?: string) => {
     if (savedGiftIds.has(gift.id)) {
@@ -81,7 +80,6 @@ export function useSavedGifts() {
     };
 
     setSavedGifts(prev => [...prev, savedGift]);
-    setSavedGiftIds(prev => new Set([...prev, gift.id]));
   }, [savedGiftIds]);
 
   const removeGift = useCallback((id: string) => {
@@ -90,15 +88,7 @@ export function useSavedGifts() {
       return;
     }
 
-    const originalId = extractOriginalId(giftToRemove.id);
-
     setSavedGifts(prev => prev.filter(gift => gift.id !== id));
-    setSavedGiftIds(prev => {
-      if (originalId === null) return prev;
-      const newSet = new Set(prev);
-      newSet.delete(originalId);
-      return newSet;
-    });
   }, [savedGifts]);
 
   const getSavedGiftsForRecipient = useCallback((recipientName: string) => {

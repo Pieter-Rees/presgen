@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { GiftFormData, GiftSuggestion, GiftData } from '@/types/gift';
 import { API_CONFIG, SYSTEM_PROMPT, buildGiftPrompt } from '@/config/apiConfig';
-
-const GIFT_DATA_STORAGE_KEY = 'presgen-current-gift-data';
+import { getStorageItem, setStorageItem, removeStorageItem } from '@/lib/storage';
 
 type ChatMessage = {
   role: 'system' | 'user';
@@ -62,30 +61,32 @@ async function requestGiftSuggestions(payload: ChatCompletionPayload): Promise<G
   return parsed.suggestions;
 }
 
+function initializeGiftData(): GiftData | null {
+  return getStorageItem<GiftData>('presgen-current-gift-data');
+}
+
 export function useGiftGeneration() {
   const [giftData, setGiftData] = useState<GiftData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedData = localStorage.getItem(GIFT_DATA_STORAGE_KEY);
-      if (!storedData) return;
-      const parsedData: GiftData = JSON.parse(storedData);
-      setGiftData(parsedData);
-    } catch {
-      localStorage.removeItem(GIFT_DATA_STORAGE_KEY);
-    }
+    const initialized = initializeGiftData();
+    setGiftData(initialized);
+    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
+    if (!isHydrated) return;
+    
     if (!giftData) {
-      localStorage.removeItem(GIFT_DATA_STORAGE_KEY);
+      removeStorageItem('presgen-current-gift-data');
       return;
     }
 
-    localStorage.setItem(GIFT_DATA_STORAGE_KEY, JSON.stringify(giftData));
-  }, [giftData]);
+    setStorageItem('presgen-current-gift-data', giftData);
+  }, [giftData, isHydrated]);
 
   const generateGifts = useCallback(async (formData: GiftFormData, savedGiftNames: string[] = []) => {
     setIsGenerating(true);
@@ -141,7 +142,7 @@ export function useGiftGeneration() {
   const reset = useCallback(() => {
     setGiftData(null);
     setError(null);
-    localStorage.removeItem(GIFT_DATA_STORAGE_KEY);
+    removeStorageItem('presgen-current-gift-data');
   }, []);
 
   return {

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { GiftFormData, SavedRecipient } from '@/types/gift';
-
-const STORAGE_KEY = 'presgen-saved-recipients';
+import { getStorageItem, setStorageItem, removeStorageItem } from '@/lib/storage';
 
 interface StoredRecipient extends Omit<SavedRecipient, 'savedAt'> {
   savedAt: string;
@@ -23,40 +22,43 @@ const getRecipientSignature = (recipient: GiftFormData) => {
   ].join('::');
 };
 
+function initializeSavedRecipients(): SavedRecipient[] {
+  const parsed = getStorageItem<StoredRecipient[]>('presgen-saved-recipients');
+  if (!parsed) {
+    return [];
+  }
+
+  if (!Array.isArray(parsed)) {
+    removeStorageItem('presgen-saved-recipients');
+    return [];
+  }
+
+  return parsed
+    .map(sanitizeRecipient)
+    .filter(recipient => !isNaN(recipient.savedAt.getTime()));
+}
+
 export function useSavedRecipients() {
   const [savedRecipients, setSavedRecipients] = useState<SavedRecipient[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(saved) as StoredRecipient[];
-      if (!Array.isArray(parsed)) {
-        throw new Error('Invalid saved recipients format');
-      }
-
-      const recipients = parsed
-        .map(sanitizeRecipient)
-        .filter(recipient => !isNaN(recipient.savedAt.getTime()));
-
-      setSavedRecipients(recipients);
-    } catch (error) {
-      console.error('Failed to parse saved recipients from storage', error);
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    const initialized = initializeSavedRecipients();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSavedRecipients(initialized);
+    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
+    if (!isHydrated) return;
+    
     if (savedRecipients.length === 0) {
-      localStorage.removeItem(STORAGE_KEY);
+      removeStorageItem('presgen-saved-recipients');
       return;
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedRecipients));
-  }, [savedRecipients]);
+    setStorageItem('presgen-saved-recipients', savedRecipients);
+  }, [savedRecipients, isHydrated]);
 
   const saveRecipientProfile = useCallback((recipient: GiftFormData) => {
     const signature = getRecipientSignature(recipient);
@@ -85,16 +87,10 @@ export function useSavedRecipients() {
     setSavedRecipients(prev => prev.filter(recipient => recipient.id !== id));
   }, []);
 
-  const getRecipientById = useCallback(
-    (id: string) => savedRecipients.find(recipient => recipient.id === id),
-    [savedRecipients]
-  );
-
   return {
     savedRecipients,
     saveRecipientProfile,
     removeRecipient,
-    getRecipientById,
   };
 }
 

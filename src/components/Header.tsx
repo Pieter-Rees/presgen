@@ -19,30 +19,27 @@ const Header = memo(function Header({
   savedRecipientsCount,
 }: HeaderProps) {
   return (
-    <header className="bg-army-dark/95 backdrop-blur-sm border-b-2 border-army-gold sticky top-0 z-50 shadow-lg">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-army-gold to-transparent"></div>
-      <div className="container mx-auto px-6 py-4">
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <div className="w-12 h-12 military-badge rounded-lg flex items-center justify-center">
-                <span className="text-army-gold font-bold text-xl">🎁</span>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <span className="text-indigo-600 font-semibold text-lg">🎁</span>
             </div>
             <div className="flex flex-col">
-              <h1 className="text-2xl font-black text-army-gold military-text uppercase tracking-tight">
+              <h1 className="text-xl font-bold text-slate-900">
                 PresGen
               </h1>
-              <div className="ribbon text-xs px-2 py-0.5 mt-0.5">
+              <p className="text-xs text-slate-500">
                 AI-Powered Gift Discovery
-              </div>
+              </p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <button 
               onClick={onGenerateNewGift}
-              className="hidden md:flex items-center space-x-2 military-badge text-army-gold px-4 py-2 text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
+              className="hidden md:flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
             >
               <span>✨</span>
               <span>Generate New Gift</span>
@@ -57,9 +54,9 @@ const Header = memo(function Header({
               />
             </div>
             
-            <div className="hidden md:flex items-center space-x-2 text-sm text-army-gold font-bold">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-army-gold"></div>
-              <span className="uppercase tracking-wide">AI Ready</span>
+            <div className="hidden md:flex items-center gap-2 text-sm text-slate-600">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span>AI Ready</span>
             </div>
             
             <div className="md:hidden">

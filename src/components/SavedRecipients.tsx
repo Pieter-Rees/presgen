@@ -108,10 +108,10 @@ const SavedRecipients = memo(function SavedRecipients({
             <select
               value={relationshipFilter}
               onChange={event => handleRelationshipChange(event.target.value)}
-              className="w-full px-4 py-3 border-2 border-army-gold/50 rounded-lg bg-army-dark/50 backdrop-blur-sm text-army-khaki-light focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
+              className="w-full px-4 py-3 border-2 border-army-gold/50 rounded-lg bg-army-dark text-white focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
             >
               {relationships.map(relationship => (
-                <option key={relationship} value={relationship} className="bg-army-dark">
+                <option key={relationship} value={relationship} className="bg-army-dark text-white">
                   {relationship === 'all' ? 'All relationships' : capitalizeFirst(relationship)}
                 </option>
               ))}

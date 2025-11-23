@@ -2,26 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  trailingSlash: false,
   poweredByHeader: false,
   compress: true,
-  generateEtags: true,
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ['react', 'react-dom'],
-  },
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
-  },
-  images: {
-    domains: [],
-    unoptimized: false,
-    formats: ['image/webp', 'image/avif'],
   },
   async headers() {
     return [

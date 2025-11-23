@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo, useCallback } from 'react';
 
 interface UserMenuProps {
   savedGiftsCount: number;
@@ -9,23 +9,23 @@ interface UserMenuProps {
   onViewSavedRecipients: () => void;
 }
 
-const UserMenu = ({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onViewSavedRecipients }: UserMenuProps) => {
+const UserMenu = memo(function UserMenu({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onViewSavedRecipients }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (!menuRef.current || menuRef.current.contains(event.target as Node)) {
+      if (menuRef.current?.contains(event.target as Node)) {
         return;
       }
-
       setIsOpen(false);
     };
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -33,10 +33,24 @@ const UserMenu = ({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onV
 
   const totalItems = savedGiftsCount + savedRecipientsCount;
 
+  const handleToggle = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
+
+  const handleViewSavedGiftsClick = useCallback(() => {
+    setIsOpen(false);
+    onViewSavedGifts();
+  }, [onViewSavedGifts]);
+
+  const handleViewSavedRecipientsClick = useCallback(() => {
+    setIsOpen(false);
+    onViewSavedRecipients();
+  }, [onViewSavedRecipients]);
+
   return (
     <div className="relative" ref={menuRef}>
       <button
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={handleToggle}
         className="flex items-center space-x-2 px-4 py-2 military-badge text-army-gold text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
       >
         <span className="text-lg">🌟</span>
@@ -66,19 +80,13 @@ const UserMenu = ({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onV
 
           <div className="space-y-3">
             <button
-              onClick={() => {
-                setIsOpen(false);
-                onViewSavedGifts();
-              }}
+              onClick={handleViewSavedGiftsClick}
               className="w-full military-badge text-army-gold py-3 px-4 text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
             >
               💝 View Saved Gifts
             </button>
             <button
-              onClick={() => {
-                setIsOpen(false);
-                onViewSavedRecipients();
-              }}
+              onClick={handleViewSavedRecipientsClick}
               className="w-full military-badge border-2 border-army-gold text-army-khaki py-3 px-4 text-sm font-bold uppercase tracking-wide hover:bg-army-gold/20 transition-all duration-300 cursor-pointer"
             >
               👥 View Saved Recipients
@@ -92,7 +100,7 @@ const UserMenu = ({ savedGiftsCount, savedRecipientsCount, onViewSavedGifts, onV
       )}
     </div>
   );
-};
+});
 
 export default UserMenu;
 

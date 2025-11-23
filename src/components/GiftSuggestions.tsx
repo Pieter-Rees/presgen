@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, memo } from 'react';
+import { memo } from 'react';
 import type { GiftData, GiftSuggestion } from '@/types/gift';
-import { getCategoryIcon } from '@/utils/icons';
-import { getBudgetLabel, capitalizeFirst, formatAgeRange, getPriceLabel } from '@/utils/formatting';
+import { getBudgetLabel, capitalizeFirst, formatAgeRange } from '@/utils/formatting';
+import GiftCard from '@/components/ui/GiftCard';
 
 interface GiftSuggestionsProps {
   giftData: GiftData;
@@ -25,10 +25,6 @@ const GiftSuggestions = memo(function GiftSuggestions({
   onViewDetail
 }: GiftSuggestionsProps) {
   const { recipient, suggestions } = giftData;
-
-  const handleSaveGift = useCallback((gift: GiftSuggestion) => {
-    onSaveGift(gift);
-  }, [onSaveGift]);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -123,57 +119,15 @@ const GiftSuggestions = memo(function GiftSuggestions({
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {suggestions.map((suggestion) => (
-              <div 
-                key={suggestion.id} 
-                className="military-badge p-8 rounded-lg hover:shadow-2xl transition-all hover:scale-105"
-              >
-                <div className="flex items-start justify-between mb-6">
-                  <div className="text-4xl">{getCategoryIcon(suggestion.category)}</div>
-                  <div className="text-right">
-                    <span className="ribbon text-xs px-3 py-1">
-                      {suggestion.category}
-                    </span>
-                    <div className="text-xl font-black text-army-gold mt-2">
-                      {getPriceLabel(suggestion.price, recipient.budget)}
-                    </div>
-                  </div>
-                </div>
-                
-                <h4 className="text-xl font-black text-army-gold military-text mb-3 leading-tight uppercase">
-                  {suggestion.name}
-                </h4>
-                
-                <p className="text-army-khaki-light mb-6 text-sm leading-relaxed font-semibold">
-                  {suggestion.description}
-                </p>
-                
-                <div className="military-badge border border-army-gold rounded-lg p-4 mb-6">
-                  <div className="ribbon ribbon-blue text-xs px-2 py-0.5 mb-2 inline-block">WHY THIS GIFT</div>
-                  <p className="text-sm text-army-khaki-light leading-relaxed font-semibold">
-                    {suggestion.reason}
-                  </p>
-                </div>
-                
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => onViewDetail(suggestion)}
-                    className="flex-1 military-badge text-army-gold py-3 px-4 text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
-                  >
-                    View Details
-                  </button>
-                  <button 
-                    onClick={() => handleSaveGift(suggestion)}
-                    disabled={savedGiftIds.has(suggestion.id)}
-                    className={`py-3 px-4 rounded-lg text-sm font-bold uppercase tracking-wide transition-all duration-300 cursor-pointer ${
-                      savedGiftIds.has(suggestion.id)
-                        ? 'military-badge border-2 border-green-500 text-green-400 cursor-not-allowed'
-                        : 'military-badge border-2 border-army-gold text-army-khaki hover:bg-army-gold/20'
-                    }`}
-                  >
-                    {savedGiftIds.has(suggestion.id) ? '✓ Saved' : 'Save'}
-                  </button>
-                </div>
-              </div>
+              <GiftCard
+                key={suggestion.id}
+                gift={suggestion}
+                budget={recipient.budget}
+                onViewDetail={() => onViewDetail(suggestion)}
+                onSave={() => onSaveGift(suggestion)}
+                isSaved={savedGiftIds.has(suggestion.id)}
+                size="md"
+              />
             ))}
           </div>
         )}

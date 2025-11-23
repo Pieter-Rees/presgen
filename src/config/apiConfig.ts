@@ -5,8 +5,8 @@ export const API_CONFIG = {
   defaultTemperature: 0.7,
   regenerateTemperature: 0.9,
   defaultMaxTokens: 1000,
-  baseUrl: 'https://openrouter.ai/api/v1/chat/completions'
-};
+  baseUrl: 'https://openrouter.ai/api/v1/chat/completions',
+} as const;
 
 export const SYSTEM_PROMPT = 'You are a helpful gift consultant that provides personalized gift suggestions in JSON format.';
 

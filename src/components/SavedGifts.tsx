@@ -2,8 +2,7 @@
 
 import { useState, useCallback, memo, useMemo } from 'react';
 import type { SavedGift } from '@/types/gift';
-import { getCategoryIcon } from '@/utils/icons';
-import { formatDate, getPriceLabel } from '@/utils/formatting';
+import GiftCard from '@/components/ui/GiftCard';
 
 interface SavedGiftsProps {
   savedGifts: SavedGift[];
@@ -80,10 +79,10 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
             <select
               value={filterCategory}
               onChange={(e) => handleFilterChange(e.target.value)}
-              className="px-4 py-2 border-2 border-army-gold/50 rounded-lg bg-army-dark/50 backdrop-blur-sm text-army-khaki-light focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
+              className="px-4 py-2 border-2 border-army-gold/50 rounded-lg bg-army-dark text-white focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
             >
               {categories.map(category => (
-                <option key={category} value={category} className="bg-army-dark">
+                <option key={category} value={category} className="bg-army-dark text-white">
                   {category === 'all' ? 'All Categories' : category}
                 </option>
               ))}
@@ -95,11 +94,11 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
             <select
               value={sortBy}
               onChange={(e) => handleSortChange(e.target.value as 'date' | 'name' | 'price')}
-              className="px-4 py-2 border-2 border-army-gold/50 rounded-lg bg-army-dark/50 backdrop-blur-sm text-army-khaki-light focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
+              className="px-4 py-2 border-2 border-army-gold/50 rounded-lg bg-army-dark text-white focus:ring-2 focus:ring-army-gold focus:border-army-gold transition-all duration-300 cursor-pointer font-semibold"
             >
-              <option value="date">Date Saved</option>
-              <option value="name">Name</option>
-              <option value="price">Price</option>
+              <option value="date" className="bg-army-dark text-white">Date Saved</option>
+              <option value="name" className="bg-army-dark text-white">Name</option>
+              <option value="price" className="bg-army-dark text-white">Price</option>
             </select>
           </div>
         </div>
@@ -123,57 +122,14 @@ const SavedGifts = memo(function SavedGifts({ savedGifts, onRemoveGift, onBack, 
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredGifts.map((gift) => (
-            <div 
-              key={gift.id} 
-              className="military-badge p-6 rounded-lg hover:shadow-2xl transition-all hover:scale-105"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="text-3xl">{getCategoryIcon(gift.category)}</div>
-                <div className="text-right">
-                  <span className="ribbon text-xs px-3 py-1">
-                    {gift.category}
-                  </span>
-                  <div className="text-lg font-black text-army-gold mt-2">
-                    {getPriceLabel(gift.price)}
-                  </div>
-                </div>
-              </div>
-              
-              <h4 className="text-lg font-black text-army-gold military-text mb-3 leading-tight uppercase">
-                {gift.name}
-              </h4>
-              
-              <p className="text-army-khaki-light mb-4 text-sm leading-relaxed font-semibold">
-                {gift.description}
-              </p>
-              
-              <div className="military-badge border border-army-gold rounded-lg p-3 mb-4">
-                <div className="ribbon ribbon-blue text-xs px-2 py-0.5 mb-2 inline-block">WHY THIS GIFT</div>
-                <p className="text-sm text-army-khaki-light leading-relaxed font-semibold">
-                  {gift.reason}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-army-khaki-light mb-4 font-semibold">
-                <span>For: {gift.recipientName}</span>
-                <span>{formatDate(gift.savedAt)}</span>
-              </div>
-              
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => onViewDetail(gift)}
-                  className="flex-1 military-badge text-army-gold py-2 px-3 rounded-lg text-sm font-bold uppercase tracking-wide hover:scale-105 transition-all duration-300 cursor-pointer"
-                >
-                  View Details
-                </button>
-                <button 
-                  onClick={() => onRemoveGift(gift.id)}
-                  className="military-badge border-2 border-red-600 text-red-400 py-2 px-3 rounded-lg text-sm font-bold uppercase tracking-wide hover:bg-red-600/20 transition-all duration-300 cursor-pointer"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
+            <GiftCard
+              key={gift.id}
+              gift={gift}
+              onViewDetail={() => onViewDetail(gift)}
+              onRemove={() => onRemoveGift(gift.id)}
+              showRecipientInfo
+              size="sm"
+            />
           ))}
         </div>
       )}
