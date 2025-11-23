@@ -63,7 +63,7 @@ const UserMenu = memo(function UserMenu({ savedGiftsCount, savedRecipientsCount,
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 military-badge rounded-lg shadow-2xl border-2 border-army-gold p-5 space-y-5">
+        <div className="absolute right-0 mt-3 w-80 military-badge rounded-lg shadow-2xl border-2 border-army-gold p-5 space-y-5 bg-white">
           <div>
             <div className="ribbon ribbon-blue text-xs px-3 py-1 mb-3 inline-block">INTELLIGENCE BRIEFING</div>
             <div className="grid grid-cols-2 gap-3">
